@@ -49,6 +49,13 @@ def transcribe_audio(request):
                  correct transcription:""" + result
 
     if (USING_OPENAI):
+        # Result:
+            """
+                {
+                    "transcript": "Even though we face the difficulties of today and tomorrow, I still have a dream. It is a dream deeply rooted in the American dream. I have a dream that one day this nation will rise up."
+                }
+            """
+
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
