@@ -13,7 +13,7 @@ import os
 from openai import OpenAI
 
 # Global Variables
-USING_OPENAI = True   # Set to False by default, minimizing OpenAI API calls
+USING_OPENAI = False # Set to False by default, minimizing OpenAI API calls
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 API_KEY = os.getenv('OPEN_AI_KEY')
 
