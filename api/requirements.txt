@@ -1,6 +1,5 @@
 django
 djangorestframework
 python-dotenv
-SpeechRecognition
 openai
 django4-background-tasks

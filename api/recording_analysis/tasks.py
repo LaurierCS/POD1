@@ -3,23 +3,16 @@ NOTE: need to run following code in api directory
 python3 manage.py process_tasks
 """
 
-
-
 from background_task import background
 
 import sys
-import speech_recognition as sr
 import os
 
 from openai import OpenAI
 
 # Global Variables
-USING_OPENAI = True # Set to False by default, minimizing OpenAI API calls
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 API_KEY = os.getenv('OPEN_AI_KEY')
-
-# Set up transcriber
-r = sr.Recognizer()
 
 # Set up OpenAI connection
 client = OpenAI(
@@ -27,49 +20,39 @@ client = OpenAI(
 )
 
 @background
-def transcribe_proofread(recording_id):
-    """
-    print(recording_id)
-    f = open("media/transcripts/" + recording_id, "a")
-    f.write("Hi")
-    f.close()
-    """
+def transcribe_proofread(recording_id, recording_path):
+    ## Transcribe
+    audio_file = open(recording_path, "rb")
 
-    result = "hallo, me name's j :)"
+    transcript = client.audio.transcriptions.create(
+        model="whisper-1",
+        file=audio_file
+    )
 
-    # Can also specify multiple roles (e.g: system, and build context using user
-    #    and assistant): 
-    #https://platform.openai.com/docs/guides/text-generation/chat-completions-api
+    #print(transcript.text)
 
+    if os.path.exists(recording_path):      # Remove audio file once 
+      os.remove(recording_path)             #   transcription is complete
+
+
+    ## Proof read
     prompt = """The following text is a transcription of an audio recording. 
                 It may contain errors in interpreted words and punctuation. 
                 Your task is to state the corrected transcription, correcting 
                 the punctuation and aligning the text with what was most likely 
                 intended in the original audio. In your response, state only the
-                 correct transcription:""" + result
+                 correct transcription:""" + transcript.text
 
-    if (USING_OPENAI):
-        # Result:
-        '''
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
             {
-                "transcript": "Even though we face the difficulties of today and
-                                 tomorrow, I still have a dream. It is a dream 
-                                 deeply rooted in the American dream. I have a 
-                                 dream that one day this nation will rise up."
+                "role": "user", "content": prompt
             }
-        '''
+        ]
+    )
+    response = response.choices[0].message.content.strip()
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "user", "content": prompt
-                }
-            ]
-        )
-
-        response = response.choices[0].message.content.strip()
-
-        f = open("media/transcripts/" + recording_id, "a")
-        f.write(response)
-        f.close()
+    f = open("media/transcripts/" + recording_id, "a")      # Save proofread
+    f.write(response)                                       #   final response
+    f.close()
