@@ -71,7 +71,6 @@ def transcribe_audio(request):
             ]
         )
 
-        print("Original transcription: ", result)
         return JsonResponse({"old-transcript": result, "new-transcript": response.choices[0].message.content.strip()})
 
     return JsonResponse({"result": "success"})
@@ -100,36 +99,3 @@ class AudioUploadAPIView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
-
-
-class AudioTranscriptAPIView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-    serializer_class = AudioFileSerializer
-
-    def get(self, request, format=None):
-        print("Called:):):)")
-        # NOTE: might need to assert that only 1 file is passed in
-
-        transcript = UploadedAudio.objects.get(id="a5f6aa7d-a76d-4491-b48d-4085628dbdf8")
-        print("********Transcript")
-        print(transcript.recording)
-
-        return Response(
-            status=status.HTTP_201_CREATED
-        )
-
-        """
-        if serializer.is_valid():
-            saved_recording = serializer.save()
-
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
-
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-        """
-
