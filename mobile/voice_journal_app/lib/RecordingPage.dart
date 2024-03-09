@@ -1,7 +1,10 @@
-import 'dart:async';
+import 'dart:async'; //Required for recording and waitting.
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:flutter/material.dart'; //
+import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
+import 'package:intl/intl.dart'; //Used for date formatting
+import 'package:path_provider/path_provider.dart'; //used for getting app directory
+import 'package:fluttertoast/fluttertoast.dart'; //Used for making saved pop up
 // To-do List:
 // - Save file (Done)
 // - Recording to data base (Not Done) 
@@ -9,37 +12,59 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 // ------Initializing Variables----
 RecorderController controller = RecorderController();
 String path = '';
+late DateTime presently; //what day/time is it presently? went with the shortest name I could think of
 int secondsCounter = 0;
+late Timer _timer;
 String message = "Press the record button to start";
 Icon rcrdIcon = const Icon(Icons.mic_off_outlined);  
 bool recording = false; //Establish a bool to keep track of button state
 bool transcribed = false; //Transcribed bool **just a placeholder for now**
 late Directory appDirectory; //late meanning initializing later in code, but deffining it now
+  bool counting = false; //Counting bool to track if the counter has been started or not. Unsure if I can stop it so this bool is used to prevent double trigger (counting on 2s)
 // ------Done Initializing Variables----
+void displaySaved(){ //Create a little pop up letting the user know their reccording has been saved
+  Fluttertoast.showToast(
+    msg: 'saved',
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 1,
+    backgroundColor: const Color.fromARGB(0, 76, 175, 79),
+    textColor: Colors.white,
+    fontSize: 16.0,
+  );
+}
 startRecording() async{
   rcrdIcon = const Icon(Icons.pause);
   recording = true;
   final hasPermission = await controller.checkPermission(); //get permission to use mic
   //appDirectory = await getApplicationDocumentsDirectory();  //get the apps directory useful later
-  appDirectory = Directory('/storage/emulated/0/Download'); //Set directory for file to go to.
-   path = "${appDirectory.path}/recording.m4a";//Set the path to where it should go + the name
-   if(hasPermission){ //If we got phone perm
+  appDirectory = Directory('/storage/emulated/0/Download'); //Set directory for file to go to
+  String exactDirectory = appDirectory.path;
+  presently = DateTime.now(); //Set presently string to date and time
+  String formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently); //Format date and time to work as a valid file name
+  path = '$exactDirectory' +'/$formattedDateTime.m4a';//Set the path to where it should go + the current date and time
+  if(hasPermission){ //If we got phone permissions
     controller.record(path: path); //Record
-   }
-  message = 'Recording';
+  }
+  message = 'Recording'; //change message to show recording
 }
 stopRecording(){
-    recording = false;
+  if(counting){
+    counting = false;//Don't count anymore
+    _timer.cancel();
+  }
+    recording = false; //No longer recording
     controller.stop(); //Stop the recording controller
-    secondsCounter = 0;
+    secondsCounter = 0; //reset counter to 0
     rcrdIcon = const Icon(Icons.mic_off_outlined);  
     message = 'Recording Stopped';
 }
 pauseRecording(){
-  recording = false;
-  controller.pause();
+  recording = false; //not recording
+  controller.pause(); //pause the recording
   rcrdIcon = const Icon(Icons.play_arrow);
   message = 'Recording paused';
+  displaySaved();
 }
 
 void main() {
@@ -51,7 +76,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'recording page',
-      theme: ThemeData(
+      theme: ThemeData( //Themes
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         useMaterial3: true,
       ),
@@ -66,9 +91,6 @@ class RecordingPage extends StatefulWidget{
   State<RecordingPage> createState() => _RecordingPageState();
 }
 class _RecordingPageState extends State<RecordingPage>{
-  late Timer _timer;
-
-  bool counting = false; //Counting bool to track if the counter has been started or not. Unsure if I can stop it so this bool is used to prevent double trigger (counting on 2s)
   void _changeState() async{
     if(!recording){ //if currently not recording and the button has been hit`
       recording = true; //recording is true
@@ -85,69 +107,30 @@ class _RecordingPageState extends State<RecordingPage>{
       });
     }
   }
-  void _startCounting(){
+  void _startCounting(){ //start timer
     counting = true;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {  //This will repeat the counter+ line every second, increasing the counter.
-      setState(() {
-        if(recording){
-          secondsCounter++;
-        }
-      });
+        setState(() { //visual update
+          if(recording){
+            secondsCounter++; //if recording increase counter every second
+          }
+        });
     }
     );
   }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Recording Page'),
-        actions:[
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: (){
-              if(!recording){ //If not currently recording
-                stopRecording(); //Stop the recording (onoce stopped it cannot be started again)
-               // message = "Recording Endded"; //Display recording ended
-               setState((){
-               });
-              }else{ //If the recording is running
-                showDialog(context: context, builder:(BuildContext context){ //Create a pop up
-                  return AlertDialog(
-                    title: const Text('uhhh. You sure?'),// Title:
-                    content: const Text('Are you sure you want to exit this page and stop recording?'), //Contents of the pop up
-                    actions:[
-                      TextButton(
-                        onPressed:(){
-                          Navigator.of(context).pop(); //close the dialog box
-                        },
-                        child: const Text('No')
-                      ),
-                      TextButton(
-                        onPressed:(){
-                          Navigator.of(context).pop(); //close the dialog box
-                          stopRecording();
-                          setState((){ //Refreshing display after calling function
-                          });
-                        }, child: const Text('Yes'),
-                      ),
-                    ],
-                  );
-                },
-              );
-                //message = 'Hey!\nPlease pause the recording before trying to close this page';
-              }
-            },
-          )
-        ]
-      ),
         body: Center(
        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            //mainAxisAlignment: MainAxisAlignment.center, //center it
             children: <Widget>[
               const SizedBox(height: 20), // Add some spacing
-              Container(
-                alignment: Alignment.center,
-                width: 500,
+              const SizedBox(height: 20), // Add some spacing
+              Container( //Container at the top of the page showing timer and recording status
+                alignment: Alignment.center, //center align
+                width: 370,
                 height: 200,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -167,7 +150,7 @@ class _RecordingPageState extends State<RecordingPage>{
               ),
               const SizedBox(height: 30), //spacer
               Container( //This is the lower box which displays the audio waveforms.
-                width: 500,
+                width: 370,
                 height:200,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -175,26 +158,32 @@ class _RecordingPageState extends State<RecordingPage>{
                 borderRadius: BorderRadius.circular(20),
                 ),
                 child: 
-                  AudioWaveforms(
+                  AudioWaveforms( //Wave form
                     size: Size(MediaQuery.of(context).size.height, 200.0),
                     recorderController: controller,
-                    enableGesture: false,
-                    waveStyle: const WaveStyle(
+                    enableGesture: false,//makes it so you cant move around the waves by dragging your finger
+                    waveStyle: const WaveStyle( //controls how the wave looks
                       waveColor: Colors.white,
                       showDurationLabel: false,
-                      spacing: 4.0,
-                      showBottom: true,
-                      extendWaveform: false,
-                      showMiddleLine: false,
+                      spacing: 4.0, //increase wave resolution/definition/ammount
+                      showBottom: true, //Unsure what this does
+                      extendWaveform: true,
+                      showMiddleLine: false, //adds a red line to the middle of the box
                   ),
                 ),
               ),
             ],
           ),
         ),
-        floatingActionButton: Container(
+        appBar: AppBar(
+
+          
+        ),
+      floatingActionButton: Container( //Recording button
+        margin: const EdgeInsets.only(bottom: 120),
         height: 70,
         width:70,
+        // alignment: Alignment.center,
         child: FloatingActionButton(
           onPressed: _changeState,
           tooltip: 'Record',
@@ -203,6 +192,59 @@ class _RecordingPageState extends State<RecordingPage>{
           child: rcrdIcon,
         ),
       ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, // Centers the button above the bar
+    bottomNavigationBar: BottomAppBar( //Bottom bar yoinked from Anika's home page (Thanks)
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces the icons evenly in the row
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.auto_graph),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(Icons.home), //Home button
+                  onPressed: () {
+                    if(!recording){ //If not currently recording
+                        stopRecording(); //Stop the recording (onoce stopped it cannot be started again)
+                        Navigator.pop(context); //leave this page and go home
+                      setState((){
+                      });
+                    }else{ //If the recording is running
+                      showDialog(context: context, builder:(BuildContext context){ //Create a pop up
+                        return AlertDialog(
+                          title: const Text('uhhh. You sure?'),// Title:
+                          content: const Text('Are you sure you want to exit this page and stop recording?'), //Contents of the pop up
+                          actions:[
+                            TextButton(
+                              onPressed:(){
+                                Navigator.of(context).pop(); //close the dialog box
+                              },
+                              child: const Text('No')
+                            ),
+                            TextButton(
+                              onPressed:(){
+                                Navigator.of(context).pop(); //close the dialog box
+                                Navigator.of(context).popUntil((route) => route.isFirst); //close all routes until at the homepage
+                                stopRecording();
+                                displaySaved();  
+                                setState((){ //Refreshing display after calling function
+                                });
+                              }, child: const Text('Yes'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.date_range),
+                  onPressed: () {},
+              ),
+            ],
+          ),
+        ),
     );
   }
 }
