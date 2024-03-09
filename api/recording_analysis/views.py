@@ -3,8 +3,11 @@ from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.files.storage import default_storage    
+from django.core.files.base import ContentFile
 
 from .serializers import AudioFileSerializer
+from .models import UploadedAudio
 
 import sys
 import speech_recognition as sr
@@ -50,11 +53,14 @@ def transcribe_audio(request):
 
     if (USING_OPENAI):
         # Result:
-        """
+        '''
             {
-                "transcript": "Even though we face the difficulties of today and tomorrow, I still have a dream. It is a dream deeply rooted in the American dream. I have a dream that one day this nation will rise up."
+                "transcript": "Even though we face the difficulties of today and
+                                 tomorrow, I still have a dream. It is a dream 
+                                 deeply rooted in the American dream. I have a 
+                                 dream that one day this nation will rise up."
             }
-        """
+        '''
 
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -66,7 +72,7 @@ def transcribe_audio(request):
         )
 
         print("Original transcription: ", result)
-        return JsonResponse({"transcript": response.choices[0].message.content.strip()})
+        return JsonResponse({"old-transcript": result, "new-transcript": response.choices[0].message.content.strip()})
 
     return JsonResponse({"result": "success"})
 
@@ -76,16 +82,15 @@ class AudioUploadAPIView(APIView):
     serializer_class = AudioFileSerializer
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
+        # NOTE: might need to assert that only 1 file is passed in
+
         serializer = self.serializer_class(data=request.data)
 
         # Audio file given
         # NOTE: might need to convert to wav first
         if serializer.is_valid():
-            recording = serializer.validated_data["recording"]
-            print(recording)
+            saved_recording = serializer.save()
 
-            serializer.save()
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
@@ -95,3 +100,36 @@ class AudioUploadAPIView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class AudioTranscriptAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    serializer_class = AudioFileSerializer
+
+    def get(self, request, format=None):
+        print("Called:):):)")
+        # NOTE: might need to assert that only 1 file is passed in
+
+        transcript = UploadedAudio.objects.get(id="a5f6aa7d-a76d-4491-b48d-4085628dbdf8")
+        print("********Transcript")
+        print(transcript.recording)
+
+        return Response(
+            status=status.HTTP_201_CREATED
+        )
+
+        """
+        if serializer.is_valid():
+            saved_recording = serializer.save()
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        """
+
