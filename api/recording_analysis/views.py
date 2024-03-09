@@ -13,20 +13,7 @@ import sys
 import speech_recognition as sr
 import os
 
-from openai import OpenAI
-
-# Global Variables
-USING_OPENAI = False # Set to False by default, minimizing OpenAI API calls
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-API_KEY = os.getenv('OPEN_AI_KEY')
-
-# Set up transcriber
-r = sr.Recognizer()
-
-# Set up OpenAI connection
-client = OpenAI(
-    api_key=API_KEY,
-)
+from .tasks import transcribe_proofread
 
 def transcribe_local_file(filename):
     AUDIO_FILE = os.path.join(BASE_DIR, 'media', filename)
@@ -40,41 +27,11 @@ def transcribe_audio(request):
     # NOTE: Need to change to uploaded file!!!
     result += transcribe_local_file('i_have_a_dream.wav') # Should end with "I have a dream." (doesn't due to 30 second time cap)
 
-    # Can also specify multiple roles (e.g: system, and build context using user
-    #    and assistant): 
-    #https://platform.openai.com/docs/guides/text-generation/chat-completions-api
-
-    prompt = """The following text is a transcription of an audio recording. 
-                It may contain errors in interpreted words and punctuation. 
-                Your task is to state the corrected transcription, correcting 
-                the punctuation and aligning the text with what was most likely 
-                intended in the original audio. In your response, state only the
-                 correct transcription:""" + result
-
-    if (USING_OPENAI):
-        # Result:
-        '''
-            {
-                "transcript": "Even though we face the difficulties of today and
-                                 tomorrow, I still have a dream. It is a dream 
-                                 deeply rooted in the American dream. I have a 
-                                 dream that one day this nation will rise up."
-            }
-        '''
-
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "user", "content": prompt
-                }
-            ]
-        )
-
-        print("Original transcription: ", result)
-        return JsonResponse({"old-transcript": result, "new-transcript": response.choices[0].message.content.strip()})
+    #    return JsonResponse({"old-transcript": result, "new-transcript": response.choices[0].message.content.strip()})
 
     return JsonResponse({"result": "success"})
+
+
 
 
 class AudioUploadAPIView(APIView):
@@ -90,6 +47,8 @@ class AudioUploadAPIView(APIView):
         # NOTE: might need to convert to wav first
         if serializer.is_valid():
             saved_recording = serializer.save()
+
+            transcribe_proofread(str(saved_recording.id))
 
             return Response(
                 serializer.data,
@@ -111,8 +70,8 @@ class AudioTranscriptAPIView(APIView):
         # NOTE: might need to assert that only 1 file is passed in
 
         transcript = UploadedAudio.objects.get(id="a5f6aa7d-a76d-4491-b48d-4085628dbdf8")
-        print("********Transcript")
         print(transcript.recording)
+
 
         return Response(
             status=status.HTTP_201_CREATED
