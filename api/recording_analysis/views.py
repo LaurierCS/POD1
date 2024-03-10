@@ -59,5 +59,5 @@ class AudioTranscriptAPIView(APIView):
             #   processed
             return Response(
                 {'transcript': ''},
-                status=status.HTTP_204_NO_CONTENT
+                status=status.HTTP_404_NOT_FOUND
             )
