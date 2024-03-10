@@ -22,37 +22,35 @@ client = OpenAI(
 @background
 def transcribe_proofread(recording_id, recording_path):
     ## Transcribe
-    audio_file = open(recording_path, "rb")
+    if os.path.exists(recording_path):
+        audio_file = open(recording_path, "rb")
 
-    transcript = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_file
-    )
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file
+        )
 
-    #print(transcript.text)
+        # Remove audio file once transcription is complete
+        os.remove(recording_path)
 
-    if os.path.exists(recording_path):      # Remove audio file once 
-      os.remove(recording_path)             #   transcription is complete
+        ## Proof read
+        prompt = """The following text is a transcription of an audio recording. 
+                    It may contain errors in interpreted words and punctuation. 
+                    Your task is to state the corrected transcription, correcting 
+                    the punctuation and aligning the text with what was most likely 
+                    intended in the original audio. In your response, state only the
+                     correct transcription:""" + transcript.text
 
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "user", "content": prompt
+                }
+            ]
+        )
+        response = response.choices[0].message.content.strip()
 
-    ## Proof read
-    prompt = """The following text is a transcription of an audio recording. 
-                It may contain errors in interpreted words and punctuation. 
-                Your task is to state the corrected transcription, correcting 
-                the punctuation and aligning the text with what was most likely 
-                intended in the original audio. In your response, state only the
-                 correct transcription:""" + transcript.text
-
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "user", "content": prompt
-            }
-        ]
-    )
-    response = response.choices[0].message.content.strip()
-
-    f = open("media/transcripts/" + recording_id, "a")      # Save proofread
-    f.write(response)                                       #   final response
-    f.close()
+        f = open("media/transcripts/" + recording_id, "a")      # Save proofread
+        f.write(response)                                       #   final response
+        f.close()

@@ -16,11 +16,8 @@ class AudioUploadAPIView(APIView):
     serializer_class = AudioFileSerializer
 
     def post(self, request, *args, **kwargs):
-        # NOTE: might need to assert that only 1 file is passed in
-
         serializer = self.serializer_class(data=request.data)
 
-        # NOTE: might need to convert to wav first
         if serializer.is_valid():
             saved_recording = serializer.save()
 
@@ -45,13 +42,22 @@ class AudioTranscriptAPIView(APIView):
     def get(self, request, recording_id, *args, **kwargs):
         recording_id = str(recording_id)
 
-        f = open("media/transcripts/" + recording_id, "r")
-        recording_path = f.name
-        transcript = f.readlines()
+        recording_path = "media/transcripts/" + recording_id
 
-        if os.path.exists(recording_path):      # Remove transcript file once 
-          os.remove(recording_path)
+        if os.path.exists(recording_path):
+            f = open(recording_path, "r")
+            transcript = f.readlines()
 
-        return Response(
-            {'transcript': transcript}
-        )
+            # Remove transcript file
+            os.remove(recording_path)
+
+            return Response(
+                {'transcript': transcript}
+            )
+        else:
+            # Either recording no longer exists or transcript is still being
+            #   processed
+            return Response(
+                {'transcript': ''},
+                status=status.HTTP_204_NO_CONTENT
+            )
