@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
 
-void main() {
-  runApp(
-    MaterialApp(
-      home: Scaffold(
-        body: Padding(
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0), // Horizontal padding for white space
           child: Container(
             padding: const EdgeInsets.only(bottom: 60.0, top: 90.0), // Adjusted to accommodate FAB and title
@@ -69,4 +69,5 @@ void main() {
       ),
     ),
   );
+}
 }
