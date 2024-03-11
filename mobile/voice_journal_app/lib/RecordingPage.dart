@@ -4,7 +4,8 @@ import 'package:flutter/material.dart'; //
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
 import 'package:intl/intl.dart'; //Used for date formatting
 import 'package:path_provider/path_provider.dart'; //used for getting app directory
-import 'package:fluttertoast/fluttertoast.dart'; //Used for making saved pop up
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:voice_journal_app/main.dart'; //Used for making saved pop up
 // To-do List:
 // - Save file (Done)
 // - Recording to data base (Not Done) 
@@ -20,7 +21,7 @@ Icon rcrdIcon = const Icon(Icons.mic_off_outlined);
 bool recording = false; //Establish a bool to keep track of button state
 bool transcribed = false; //Transcribed bool **just a placeholder for now**
 late Directory appDirectory; //late meanning initializing later in code, but deffining it now
-  bool counting = false; //Counting bool to track if the counter has been started or not. Unsure if I can stop it so this bool is used to prevent double trigger (counting on 2s)
+bool counting = false; //Counting bool to track if the counter has been started or not. Unsure if I can stop it so this bool is used to prevent double trigger (counting on 2s)
 // ------Done Initializing Variables----
 void displaySaved(){ //Create a little pop up letting the user know their reccording has been saved
   Fluttertoast.showToast(
@@ -65,24 +66,6 @@ pauseRecording(){
   rcrdIcon = const Icon(Icons.play_arrow);
   message = 'Recording paused';
   displaySaved();
-}
-
-void main() {
-  runApp(const MainApp());
-}
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'recording page',
-      theme: ThemeData( //Themes
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        useMaterial3: true,
-      ),
-      home: const RecordingPage(title: "recordingPage"),
-    );
-  }
 }
 class RecordingPage extends StatefulWidget{
   const RecordingPage({super.key, required this.title});
@@ -193,58 +176,6 @@ class _RecordingPageState extends State<RecordingPage>{
         ),
       ),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, // Centers the button above the bar
-    bottomNavigationBar: BottomAppBar( //Bottom bar yoinked from Anika's home page (Thanks)
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces the icons evenly in the row
-              children: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.auto_graph),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.home), //Home button
-                  onPressed: () {
-                    if(!recording){ //If not currently recording
-                        stopRecording(); //Stop the recording (onoce stopped it cannot be started again)
-                        Navigator.pop(context); //leave this page and go home
-                      setState((){
-                      });
-                    }else{ //If the recording is running
-                      showDialog(context: context, builder:(BuildContext context){ //Create a pop up
-                        return AlertDialog(
-                          title: const Text('uhhh. You sure?'),// Title:
-                          content: const Text('Are you sure you want to exit this page and stop recording?'), //Contents of the pop up
-                          actions:[
-                            TextButton(
-                              onPressed:(){
-                                Navigator.of(context).pop(); //close the dialog box
-                              },
-                              child: const Text('No')
-                            ),
-                            TextButton(
-                              onPressed:(){
-                                Navigator.of(context).pop(); //close the dialog box
-                                Navigator.of(context).popUntil((route) => route.isFirst); //close all routes until at the homepage
-                                stopRecording();
-                                displaySaved();  
-                                setState((){ //Refreshing display after calling function
-                                });
-                              }, child: const Text('Yes'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.date_range),
-                  onPressed: () {},
-              ),
-            ],
-          ),
-        ),
     );
   }
 }
