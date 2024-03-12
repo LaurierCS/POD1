@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:voice_journal_app/theme.dart';
 import 'home.dart';
 
 void main() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'RecordingPage.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -71,7 +72,6 @@ class HomePage extends StatelessWidget {
           backgroundColor: AppColors.accentColor,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, 
-      ),
-    ),
-  );
+      );
+  }
 }
