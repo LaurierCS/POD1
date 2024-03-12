@@ -1,3 +1,5 @@
 django
 djangorestframework
-dotenv
+python-dotenv
+openai
+django4-background-tasks
