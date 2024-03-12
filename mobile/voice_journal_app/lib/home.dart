@@ -1,72 +1,76 @@
 import 'package:flutter/material.dart';
-import 'RecordingPage.dart'; //Importing recording page
-void main() {
-  runApp(
-        MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-            body: Padding( // Add padding around the column
-              padding: EdgeInsets.only(bottom: 80.0), // Adjust this value as needed to position the items above the bottom bar
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end, // Align the children of the column to the end vertically
-                children: <Widget>[
-                  Container(
-                    width: double.infinity, // Make the rectangle take up all available horizontal space
-                    height: 150, // Specify the height of the rectangle
+import 'theme.dart';
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0), // Horizontal padding for white space
+          child: Container(
+            padding: const EdgeInsets.only(bottom: 60.0, top: 90.0), // Adjusted to accommodate FAB and title
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end, // Aligns children to the bottom
+              crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches children horizontally to match the column width
+              children: <Widget>[
+                Text(
+                  'Emoz',
+                  textAlign: TextAlign.center, //
+                  style: TextStyle(
+                    fontSize: 24, 
+                    fontWeight: FontWeight.bold, 
+                    color: Colors.black, 
+                  ),
+                ),
+                SizedBox(height: 20), // Adds space between the title and the first container
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryColor, // Background color
+                    borderRadius: BorderRadius.circular(10), // Rounds corners
+                  ),
+                  child: Center(child: Text('Emotion Stats')), // Placeholder text
+                  margin: EdgeInsets.only(bottom: 20, top: 20), // Space between the rectangles and additional top padding
+                ),
+                Expanded( // 
+                  child: Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 194, 145, 128), // Background color of the rectangle
+                      color: AppColors.primaryColor, // Background color of the rectangle
                       borderRadius: BorderRadius.circular(10), // Rounded corners
                     ),
-                    child: Center(
-                      child: Text('Emotion Stats'), // Placeholder text
-                    ),
-                    margin: EdgeInsets.only(bottom: 20), // Space between the two rectangles
-                  ),
-                  Container(
-                    width: double.infinity, // Make the rectangle take up all available horizontal space
-                    height: 150, // Specify the height of the rectangle
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 190, 157, 197), // Background color of the rectangle
-                      borderRadius: BorderRadius.circular(10), // Rounded corners
-                    ),
-                    child: Center(
-                      child: Text('Previous Recordings'), // Placeholder text
+                    child: ListView.builder( 
+                      itemCount: 10, // Number of items in the list, for demonstration
+                      itemBuilder: (context, index) => ListTile(
+                        title: Text('Item $index'), // Example list item
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            bottomNavigationBar: BottomAppBar(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces the icons evenly in the row
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.auto_graph),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.home),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.date_range),
-                    onPressed: () {},
                 ),
               ],
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
+        ),
+        bottomNavigationBar: BottomAppBar(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces icons evenly
+            children: <Widget>[
+              IconButton(icon: Icon(Icons.auto_graph), onPressed: () {}),
+              IconButton(icon: Icon(Icons.home), onPressed: () {}),
+              IconButton(icon: Icon(Icons.date_range), onPressed: () {}),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const RecordingPage(title: 'recording page')),
                 );
             },
-            child: Icon(Icons.add_circle_rounded),
-            backgroundColor: const Color.fromARGB(255, 166, 101, 96),
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, // Centers the button above the bar
+          child: Icon(Icons.add_circle_rounded),
+          backgroundColor: AppColors.accentColor,
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, 
       ),
     ),
   );
