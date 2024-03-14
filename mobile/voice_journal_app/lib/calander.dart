@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; //library for date calculations, formatting, locales, etc...
-import 'day_details.dart'; //details page
+import 'package:intl/intl.dart'; // library for date calculations, formatting, locales, etc...
+import 'day_details.dart'; // details page
 
 void main() {
   runApp(CalendarApp());
