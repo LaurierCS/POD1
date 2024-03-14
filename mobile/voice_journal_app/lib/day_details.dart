@@ -29,7 +29,7 @@ class DayDetailsPage extends StatelessWidget {
                 String hour = '${index.toString().padLeft(2, '0')}:00';
                 return ListTile(
                   title: Text(hour),
-                  // You can add more details or functionality here for each hour
+                  // Dont need an
                 );
               },
             ),

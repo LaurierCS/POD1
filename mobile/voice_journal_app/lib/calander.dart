@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; //library for date calculations, formatting, locales, etc...
-import './day_details.dart';
+import 'day_details.dart'; //details page
 
 void main() {
   runApp(CalendarApp());
@@ -31,15 +31,11 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(252, 252, 252, 1),
-      // appBar: AppBar(
-      //   title: Text('Calendar'),
-      //   centerTitle: true,
-      // ),
       body: Column(
         children: <Widget>[
           SizedBox(height: 20.0),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0), //padding on edge
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
