@@ -31,10 +31,6 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(252, 252, 252, 1),
-      // appBar: AppBar(
-      //   title: Text('Calendar'),
-      //   centerTitle: true,
-      // ),
       body: Column(
         children: <Widget>[
           SizedBox(height: 20.0),
