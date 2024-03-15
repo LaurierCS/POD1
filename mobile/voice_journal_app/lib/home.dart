@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'RecordingPage.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -61,7 +62,12 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RecordingPage(title: 'recording page')),
+              );
+          },
         child: Icon(Icons.add_circle_rounded),
         backgroundColor: AppColors.accentColor,
       ),
