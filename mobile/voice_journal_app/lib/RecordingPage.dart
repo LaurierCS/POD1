@@ -18,7 +18,7 @@ import 'schema.dart';
 // ------Initializing Variables----
 RecorderController controller = RecorderController();
 String path = '';
-DateTime presently = DateTime.now(); //what day/time is it presently? went with the shortest name I could think of
+late DateTime presently; //what day/time is it presently? went with the shortest name I could think of
 int secondsCounter = 0;
 late Timer _timer;
 String message = "Press the record button to start";
@@ -29,8 +29,8 @@ bool recording = false; //Establish a bool to keep track of button state
 bool transcribed = false; //Transcribed bool **just a placeholder for now**
 late Directory appDirectory; //late meanning initializing later in code, but deffining it now
 bool counting = false; //Counting bool to track if the counter has been started or not. Unsure if I can stop it so this bool is used to prevent double trigger (counting on 2s)
-String formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently); //Format date and time to work as a valid file name
-String file = '$formattedDateTime.m4a'; //definning title for look up.
+late String formattedDateTime; //Format date and time to work as a valid file name
+late String file; //definning title for look up.
 late Recording currentRecording;
 late var rbox; //openj recording box (rbox)
 // ------Done Initializing Variables----
@@ -46,6 +46,9 @@ void displaySaved(){ //Create a little pop up letting the user know their reccor
   );
 }
 startRecording() async{
+  presently = DateTime.now();
+  formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently);
+  file = '$formattedDateTime.m4a';
   controller.bitRate = 192000;
   controller.sampleRate = 50000;
   rcrdIcon = const Icon(Icons.pause);
