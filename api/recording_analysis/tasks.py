@@ -1,8 +1,3 @@
-"""
-NOTE: need to run following code in api directory
-python3 manage.py process_tasks
-"""
-
 from background_task import background
 
 ##############################TRANSCRIPTION####################################
