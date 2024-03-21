@@ -1,4 +1,5 @@
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
+import 'package:hive/hive.dart';
 import 'theme.dart';
 import 'package:flutter/material.dart';
 import 'schema.dart';
@@ -7,15 +8,14 @@ String title ='';
 String audioFile ='';
 Icon stateIcon = const Icon(Icons.play_arrow);
 bool playing = false;
-bool listening = false;
 late PlayerController controller;
-int durration = 0;
+int duration = 0;
 //----Done Initializing variables----
 
-DisplayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
+displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
   title = givenRecording.title;
   audioFile = givenRecording.audioFile;
-  durration = givenRecording.durration;
+  duration = givenRecording.duration;
   if(givenRecording.isTranscribed){
     //get transcription file here.
   }
@@ -41,9 +41,6 @@ audioPlayerPrep()async{ //initialize the audio player
   );
   controller.updateFrequency = UpdateFrequency.medium; //controller visual update speed
 }
-void main(){
-  runApp(const PlaybackPage(title: 'playback Page'));
-}
 class PlaybackPage extends StatefulWidget{
   const PlaybackPage({super.key, required this.title});
   final String title;
@@ -51,11 +48,12 @@ class PlaybackPage extends StatefulWidget{
   State<PlaybackPage> createState() => _PlaybackPageState();
 }
 class _PlaybackPageState extends State<PlaybackPage>{
+  @override
+  initState(){ //Page Initialization code, moved frome changed state.
+    super.initState();
+    controller.onCompletion.listen((event){ pauseRecording(); setState((){});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
+  }
   changeState(){
-    if(!listening){ //if this is the first time the button is being pressed
-      controller.onCompletion.listen((event){ pauseRecording(); setState((){});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
-      listening = true; //Set the bool so we dont do this again.
-    }
     if(playing){ //If the recording is playing
       pauseRecording(); //pause it
     } else{ //if the recording is not playing
@@ -87,7 +85,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[ 
-                  if(durration > 1)
+                  if(duration > 1)
                   AudioFileWaveforms(
                     size: Size(MediaQuery.of(context).size.width, 200.00),
                     playerController: controller,
@@ -98,7 +96,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
                       spacing: 4,
                     ),
                   ),
-                  if(durration < 1)
+                  if(duration < 1)
                   const Text('File is too small to display waveform')
                 ],
               ),
@@ -125,7 +123,6 @@ class _PlaybackPageState extends State<PlaybackPage>{
               canPop:true,
               onPopInvoked: (bool didPop){
                 if(didPop){
-                  listening = false;
                   controller.stopAllPlayers();
                   controller.dispose();
                   playing = false;

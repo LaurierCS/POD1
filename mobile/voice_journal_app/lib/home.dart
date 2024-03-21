@@ -67,7 +67,7 @@ class HomePageState extends State<HomePage>{
                         ? TextButton(
                             onPressed: () {
                               if(recording != (null)){
-                              DisplayRecording(recording);
+                              displayRecording(recording);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => const PlaybackPage(title: 'playback page')),

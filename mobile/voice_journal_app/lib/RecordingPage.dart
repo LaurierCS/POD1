@@ -59,7 +59,7 @@ startRecording() async{
   recording = true; 
   //rbox = await Hive.openBox<Recording>('recordings'); //open the box so we can put things inside of it.
   rbox = Hive.box<Recording>('recordings');
-  currentRecording = Recording(id: 'api call',title: formattedDateTime,audioFile: path,transcriptFile: 'api call',timeStamp: presently,emotion: Emotions.happy,isTranscribed: false,transcriptionId:'api call', durration: 0); //create the recording class
+  currentRecording = Recording(id: '',title: formattedDateTime,audioFile: path,transcriptFile: '',timeStamp: presently,emotion:[Emotions.happy, Emotions.anger],isTranscribed: false,transcriptionId:'', duration: 0); //create the recording class
   controller.record(path: path); //Actually start the recording
   message = 'Recording'; //change message to show recording
 }
@@ -71,7 +71,7 @@ stopRecording() async{
     _timer.cancel();
   }
   if(secondsCounter > 2){ //if something was recorded that's longer than a second then add it to the data base.
-    currentRecording.durration = secondsCounter;
+    currentRecording.duration = secondsCounter;
     await rbox.add(currentRecording); //Add the recording to the database
   }
   recording = false; //No longer recording

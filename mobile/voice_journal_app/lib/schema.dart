@@ -14,13 +14,13 @@ class Recording extends HiveObject{ //creating object class for database
     @HiveField(4)
     DateTime timeStamp;
     @HiveField(5)
-    Emotions emotion;
+    List<Emotions> emotion = []; //List of emotions
     @HiveField(6)
     bool isTranscribed;
     @HiveField(7)
     String transcriptionId;
     @HiveField(8)
-    int durration;
+    int duration;
     Recording({ //Declaring the actual recording class.
       required this.id, 
       required this.title, 
@@ -30,7 +30,7 @@ class Recording extends HiveObject{ //creating object class for database
       required this.emotion, 
       required this.isTranscribed, 
       required this.transcriptionId,
-      required this.durration
+      required this.duration
   });
 }
 class RecordingAdapter extends TypeAdapter<Recording>{ //create custom recording adapter, allows our database to interpret Recording class data.
@@ -44,10 +44,10 @@ class RecordingAdapter extends TypeAdapter<Recording>{ //create custom recording
       audioFile: reader.readString(),
       transcriptFile: reader.readString(),
       timeStamp: reader.read(),
-      emotion: Emotions.values[reader.readInt()],
+      emotion: _readEmotionsList(reader),
       isTranscribed: reader.readBool(),
       transcriptionId: reader.readString(),
-      durration: reader.readInt(),
+      duration: reader.readInt(),
 
     );
   }
@@ -58,10 +58,51 @@ class RecordingAdapter extends TypeAdapter<Recording>{ //create custom recording
     writer.writeString(obj.audioFile);
     writer.writeString(obj.transcriptFile);
     writer.write(obj.timeStamp);
-    writer.writeInt(obj.emotion.index);
+    _writeEmotionsList(writer, obj.emotion);
     writer.writeBool(obj.isTranscribed);
     writer.writeString(obj.transcriptionId);
-    writer.writeInt(obj.durration);
+    writer.writeInt(obj.duration);
   }
+    void _writeEmotionsList(BinaryWriter writer, List<Emotions> emotionsList) {
+    writer.writeByte(emotionsList.length); // Write the list length
+
+    for (final emotion in emotionsList) {
+      writer.writeInt(emotion.index); // Store value of the integer
+    }
+  }
+_readEmotionsList(BinaryReader reader) {
+    final length = reader.readByte();
+    final emotionsList = <Emotions>[];
+
+    for (var i = 0; i < length; i++) {
+      final emotionValue = reader.readInt(); // Read the integer value
+      final emotion = _getEmotionFromValue(emotionValue); // Convert to Emotions object
+      emotionsList.add(emotion);
+    }
+
+    return emotionsList;
+  }
+
+  Emotions _getEmotionFromValue(int value) { //get emotions from a int value from enum
+    switch (value) {
+      case 0:
+        return Emotions.sad;
+      case 1:
+        return Emotions.happy;
+      case 2:
+        return Emotions.fear;
+      case 3:
+        return Emotions.contempt;
+      case 4:
+        return Emotions.surprise;
+      case 5:
+        return Emotions.anger;
+      case 6:
+        return Emotions.disgust;
+      default:
+        throw Exception('Invalid emotion value');
+    }
+  }
+
 }
 //----End of Database set up----
