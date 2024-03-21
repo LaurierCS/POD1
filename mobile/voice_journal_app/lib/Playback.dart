@@ -11,7 +11,7 @@ bool playing = false;
 late PlayerController controller;
 int duration = 0;
 //----Done Initializing variables----
-
+//hello
 displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
   title = givenRecording.title;
   audioFile = givenRecording.audioFile;
