@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import sys
-import speech_recognition as sr
 import os
 
 from .serializers import AudioFileSerializer
