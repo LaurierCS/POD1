@@ -1,8 +1,3 @@
-"""
-NOTE: need to run following code in api directory
-python3 manage.py process_tasks
-"""
-
 from background_task import background
 
 ##############################TRANSCRIPTION####################################
@@ -82,8 +77,8 @@ from transformers import pipeline, AutoTokenizer
 
 EMOTION_GROUP_THRESHOLD = 0.80
 
-EMOTION_IDS = {'sadness': 0, 'happiness': 1, 'fear': 2, 'surprise': 3,
-                'anger': 4, 'disgust': 5}
+EMOTION_IDS = {'happiness': 0, 'sadness': 1, 'anger': 2, 
+                'fear': 3, 'disgust': 4, 'surprise': 5}
 
 # Organized as 'individual_emotion': 'its_corresponding_group'
 GROUPED_EMOTIONS = {'sadness': 'sadness',
