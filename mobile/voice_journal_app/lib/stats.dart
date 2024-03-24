@@ -3,6 +3,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'theme.dart'; // Make sure this is correctly pointing to your theme.dart
 
 enum TimeFrame { all, year, month, week }
+enum Emotions {
+ 	happiness, // id = 0
+  sadness, // id = 1
+  anger, // id = 2
+  fear, // id = 3
+  disgust, // id = 4
+  surprise, // id = 5
+}
 
 class EmotionCount {
   final String emotion;
@@ -24,7 +32,6 @@ class _StatsPageState extends State<StatsPage> {
     'Happiness': '😊',
     'Sadness': '😢',
     'Fear': '😨',
-    'Contempt': '😒',
     'Surprise': '😲',
     'Anger': '😠',
     'Disgust': '😖',
@@ -40,7 +47,7 @@ class _StatsPageState extends State<StatsPage> {
         children: [
           // Container for time frame selection
           Container(
-            height: 50,
+            height: 40,
             color: Colors.grey[200],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -57,6 +64,7 @@ class _StatsPageState extends State<StatsPage> {
               }).toList(),
             ),
           ),
+          SizedBox(height: 10),
           Expanded(
             child: FutureBuilder<List<EmotionCount>>(
               future: fetchEmotionCountsFromDatabase(),
@@ -164,39 +172,64 @@ Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> 
     ],
   );
 }
+Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
+  await Future.delayed(const Duration(seconds: 2)); // Simulate network/database delay
 
+  // Example mock data for different spans
+  List<EmotionCount> allData = [
+    EmotionCount('Happiness', 100),
+    EmotionCount('Sadness', 70),
+    EmotionCount('Fear', 40),
+    EmotionCount('Contempt', 30),
+    EmotionCount('Surprise', 80),
+    EmotionCount('Anger', 60),
+    EmotionCount('Disgust', 20),
+  ];
 
+  List<EmotionCount> yearData = [
+    EmotionCount('Happiness', 90),
+    EmotionCount('Sadness', 50),
+    EmotionCount('Fear', 30),
+    EmotionCount('Contempt', 25),
+    EmotionCount('Surprise', 70),
+    EmotionCount('Anger', 55),
+    EmotionCount('Disgust', 15),
+  ];
 
-  Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
-    // Mock data fetching logic or actual database fetching logic
-    await Future.delayed(const Duration(seconds: 2)); // Simulating network/database delay
+  List<EmotionCount> monthData = [
+    EmotionCount('Happiness', 80),
+    EmotionCount('Sadness', 40),
+    EmotionCount('Fear', 20),
+    EmotionCount('Contempt', 10),
+    EmotionCount('Surprise', 60),
+    EmotionCount('Anger', 45),
+    EmotionCount('Disgust', 5),
+  ];
 
-    // Example: adjust this to fetch data based on _selectedTimeFrame
-    switch (_selectedTimeFrame) {
-      case TimeFrame.week:
-        // Return weekly data
-        break;
-      case TimeFrame.month:
-        // Return monthly data
-        break;
-      case TimeFrame.year:
-        // Return yearly data
-        break;
-      case TimeFrame.all:
-      default:
-        // Return all data
-        break;
-    }
+  List<EmotionCount> weekData = [
+    EmotionCount('Happiness', 10),
+    EmotionCount('Sadness', 7),
+    EmotionCount('Fear', 3),
+    EmotionCount('Contempt', 2),
+    EmotionCount('Surprise', 5),
+    EmotionCount('Anger', 8),
+    EmotionCount('Disgust', 4),
+  ];
 
-    return [
-      EmotionCount('Happiness', 10),
-      EmotionCount('Sadness', 5),
-      EmotionCount('Fear', 3),
-      // Add more as needed
-    ];
+  // Switch statement to return data based on selected time span
+  switch (_selectedTimeFrame) {
+    case TimeFrame.all:
+      return allData;
+    case TimeFrame.year:
+      return yearData;
+    case TimeFrame.month:
+      return monthData;
+    case TimeFrame.week:
+      return weekData;
+    default:
+      return allData; // Default case returns all data
   }
-
-
+}
   Color getColorForEmotion(String emotion) {
     switch (emotion) {
       case 'Happiness':
