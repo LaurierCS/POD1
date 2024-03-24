@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
+import 'theme.dart'; // Ensure this is the correct path to where AppColors is defined
 
 void main() {
   runApp(const MyApp());
@@ -8,12 +9,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
-@override
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EMOZ', // Your app title
-     theme: ThemeData(
+      theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primaryColor, // Use primaryColor as seed color
           primary: AppColors.primaryColor,
