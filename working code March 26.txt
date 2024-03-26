@@ -1,3 +1,5 @@
+working code March 26
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'theme.dart';
@@ -170,7 +172,7 @@ Expanded(
               color: section.color,
               value: section.value,
               title: section.title,
-              radius: MediaQuery.of(context).size.width / 3, // This increases the pie chart size
+              radius: MediaQuery.of(context).size.width / 4, // This increases the pie chart size
               titleStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
