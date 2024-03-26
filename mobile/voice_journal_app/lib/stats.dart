@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'theme.dart'; // Make sure this is correctly pointing to your theme.dart
+import 'theme.dart';
 
 enum TimeFrame { all, year, month, week }
 enum Emotions {
@@ -118,7 +118,7 @@ Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> 
       // Bar Chart Expanded Widget
       Expanded(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 65.0),
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
@@ -157,18 +157,33 @@ Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> 
         ),
       ),
       // Pie Chart Expanded Widget
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-          child: PieChart(
-            PieChartData(
-              sections: pieSections,
-              centerSpaceRadius: 0,
-              sectionsSpace: 0,
+Expanded(
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+    child: AspectRatio(
+      aspectRatio: 1.5, // The aspect ratio you want. For square use 1.
+      child: PieChart(
+        PieChartData(
+          centerSpaceRadius: 0, // Adjust this to change the size of the inner space of the pie chart
+          sectionsSpace: 0, // Adjust this to control the space between sections
+          sections: pieSections.map((section) => 
+            PieChartSectionData(
+              color: section.color,
+              value: section.value,
+              title: section.title,
+              radius: MediaQuery.of(context).size.width / 4, // This increases the pie chart size
+              titleStyle: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xffffffff),
+              ),
             ),
-          ),
+          ).toList(),
         ),
       ),
+    ),
+  ),
+),
     ],
   );
 }
@@ -180,7 +195,6 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
     EmotionCount('Happiness', 100),
     EmotionCount('Sadness', 70),
     EmotionCount('Fear', 40),
-    EmotionCount('Contempt', 30),
     EmotionCount('Surprise', 80),
     EmotionCount('Anger', 60),
     EmotionCount('Disgust', 20),
@@ -190,7 +204,6 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
     EmotionCount('Happiness', 90),
     EmotionCount('Sadness', 50),
     EmotionCount('Fear', 30),
-    EmotionCount('Contempt', 25),
     EmotionCount('Surprise', 70),
     EmotionCount('Anger', 55),
     EmotionCount('Disgust', 15),
@@ -200,7 +213,6 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
     EmotionCount('Happiness', 80),
     EmotionCount('Sadness', 40),
     EmotionCount('Fear', 20),
-    EmotionCount('Contempt', 10),
     EmotionCount('Surprise', 60),
     EmotionCount('Anger', 45),
     EmotionCount('Disgust', 5),
@@ -210,7 +222,6 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
     EmotionCount('Happiness', 10),
     EmotionCount('Sadness', 7),
     EmotionCount('Fear', 3),
-    EmotionCount('Contempt', 2),
     EmotionCount('Surprise', 5),
     EmotionCount('Anger', 8),
     EmotionCount('Disgust', 4),
@@ -238,8 +249,6 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
         return AppColors.sadness;
       case 'Fear':
         return AppColors.fear;
-      case 'Contempt':
-        return AppColors.contempt;
       case 'Surprise':
         return AppColors.surprise;
       case 'Anger':
