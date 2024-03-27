@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart'; //Used for making saved pop up
 import 'package:voice_journal_app/Emotions_enums.dart';
 import 'package:voice_journal_app/home.dart';
 import 'package:voice_journal_app/theme.dart'; 
+import 'package:http/http.dart' as http;
 import 'schema.dart';
 // To-do List:
 // - Save file (Done)
@@ -17,6 +18,8 @@ import 'schema.dart';
 // - Send the audio file to API (Not Done)
 // ------Initializing Variables----
 RecorderController controller = RecorderController();
+String apiIp ="http://10.20.112.78:8000/api/recordings/"; //API IP addres
+final uri = Uri.parse('http://10.20.112.78:8000/api/recordings/');
 String path = '';
 late DateTime presently; //what day/time is it presently? went with the shortest name I could think of
 int secondsCounter = 0;
@@ -46,6 +49,7 @@ void displaySaved(){ //Create a little pop up letting the user know their reccor
   );
 }
 startRecording() async{
+  print(uri);
   presently = DateTime.now();
   formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently);
   file = '$formattedDateTime.m4a';
@@ -78,6 +82,11 @@ stopRecording() async{
   secondsCounter = 0; //reset counter to 0
   rcrdIcon = const Icon(Icons.mic_off_outlined);  
   message = 'Recording Stopped';
+  var request = new http.MultipartRequest('POST', uri);
+  final httpRecording = await http.MultipartFile.fromPath('Recording', path);
+  request.files.add(httpRecording);
+  final response = await request.send();
+  //print('${response.statusCode}' + 'this is the responce');
 }
 pauseRecording(){
   recording = false; //not recording
