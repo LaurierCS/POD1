@@ -7,7 +7,7 @@ import 'schema.dart';
 void main()async { 
   await Hive.initFlutter(); //Initialize hive for flutter crucial step
   Hive.registerAdapter(RecordingAdapter()); //Register the adapter, essentially telling Hive how to read and write our Recording information into a box
-  await Hive.openBox<Recording>('recordings');
+  //await Hive.openBox<Recording>('recordings');
   runApp(const MyApp());
 }
 class MyApp extends StatelessWidget {

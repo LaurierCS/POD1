@@ -86,19 +86,17 @@ _readEmotionsList(BinaryReader reader) {
   Emotions _getEmotionFromValue(int value) { //get emotions from a int value from enum
     switch (value) {
       case 0:
-        return Emotions.sad;
+        return Emotions.happiness;
       case 1:
-        return Emotions.happy;
+        return Emotions.sadness;
       case 2:
-        return Emotions.fear;
-      case 3:
-        return Emotions.contempt;
-      case 4:
-        return Emotions.surprise;
-      case 5:
         return Emotions.anger;
-      case 6:
+      case 3:
+        return Emotions.fear;
+      case 4:
         return Emotions.disgust;
+      case 5:
+        return Emotions.surprise;
       default:
         throw Exception('Invalid emotion value');
     }
