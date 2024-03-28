@@ -4,11 +4,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import sys
-import speech_recognition as sr
 import os
 
 from .serializers import AudioFileSerializer
-from .tasks import transcribe_proofread
+from .tasks import audio_transcribe_analyse
+from .models import UploadedAudio
 
 # Upload Audio (supports m4a, mp4, etc...)
 class AudioUploadAPIView(APIView):
@@ -21,7 +21,7 @@ class AudioUploadAPIView(APIView):
         if serializer.is_valid():
             saved_recording = serializer.save()
 
-            transcribe_proofread(str(saved_recording.id), saved_recording.recording.path)
+            audio_transcribe_analyse(str(saved_recording.id), saved_recording.recording.path)
 
             return Response(
                 serializer.data,
@@ -46,13 +46,18 @@ class AudioTranscriptAPIView(APIView):
 
         if os.path.exists(recording_path):
             f = open(recording_path, "r")
-            transcript = f.readlines()
+            transcript = f.readlines()[0]
 
             # Remove transcript file
             os.remove(recording_path)
 
+            entry_title = str(UploadedAudio.objects.get(id=recording_id).entry_title)
+            emotions = str(UploadedAudio.objects.get(id=recording_id).emotions)
+
             return Response(
-                {'transcript': transcript}
+                {'transcript': transcript,
+                'entry_title': entry_title,
+                'emotions': emotions}
             )
         else:
             # Either recording no longer exists or transcript is still being

@@ -4,4 +4,4 @@ from .models import UploadedAudio
 class AudioFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UploadedAudio
-        fields = ('id', 'recording', 'uploaded_on')
+        fields = ('id', 'entry_title', 'emotions', 'recording', 'uploaded_on')

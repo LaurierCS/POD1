@@ -33,3 +33,7 @@ pip install -r requirements.txt
 ```sh
 python manage.py runserver
 ```
+### Run Background Tasks
+```sh
+python manage.py process_tasks
+```

@@ -3,3 +3,6 @@ djangorestframework
 python-dotenv
 openai
 django4-background-tasks
+transformers
+tensorflow==2.12.0
+torch
