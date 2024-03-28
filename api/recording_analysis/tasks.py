@@ -51,12 +51,14 @@ def transcribe_proofread(recording_id, recording_path):
         transcript = response.choices[0].message.content.strip()
 
         ## Produce entry title
-        message_history.append({"role":"assistant", "content": transcript})
-
         title_creation_prompt = """State a journal entry title name no longer 
-                                    than 10 words, given the previous text"""
-        message_history.append({"role":"user", "content": title_creation_prompt})
+                                    than 10 words, given the following text:""" + transcript
 
+        message_history = [
+            {
+                "role": "user", "content": title_creation_prompt
+            }
+        ]
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=message_history
