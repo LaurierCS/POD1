@@ -1,4 +1,5 @@
 import 'dart:async'; //Required for recording and waitting.
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart'; //
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
@@ -18,8 +19,9 @@ import 'schema.dart';
 // - Send the audio file to API (Not Done)
 // ------Initializing Variables----
 RecorderController controller = RecorderController();
-String apiIp ="http://10.20.112.78:8000/api/recordings/"; //API IP addres
-final uri = Uri.parse('http://10.20.112.78:8000/api/recordings/');
+String recordapiIp ="http://10.20.112.78:8000/api/recordings/"; //API IP addres
+final recordUri = Uri.parse('http://10.20.112.78:8000/api/recordings/');
+final transcriptURi = Uri.parse('http://10.20.112.78:8000/api/transcripts/');
 String path = '';
 late DateTime presently; //what day/time is it presently? went with the shortest name I could think of
 int secondsCounter = 0;
@@ -49,12 +51,11 @@ void displaySaved(){ //Create a little pop up letting the user know their reccor
   );
 }
 startRecording() async{
-  print(uri);
   presently = DateTime.now();
   formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently);
   file = '$formattedDateTime.m4a';
-  controller.bitRate = 192000;
-  controller.sampleRate = 50000;
+  controller.bitRate = 19;
+  controller.sampleRate = 50;
   rcrdIcon = const Icon(Icons.pause);
   appDirectory = await getApplicationDocumentsDirectory();  //get the apps directory useful later
   //appDirectory = Directory('/storage/emulated/0/Download'); //Set directory for file to go to
@@ -68,25 +69,34 @@ startRecording() async{
   message = 'Recording'; //change message to show recording
 }
 stopRecording() async{
-  controller.stop();
+  await controller.stop();
+  File file = File(path);
+  int size = await file.length();
   //controller.dispose();
   if(counting){ //if the timer was started
     counting = false;//Don't count anymore
     _timer.cancel();
   }
   if(secondsCounter > 2){ //if something was recorded that's longer than a second then add it to the data base.
+    var request = new http.MultipartRequest('POST', recordUri);
+    final httpRecording = await http.MultipartFile.fromPath('recording', path);
+    request.files.add(httpRecording);
+    final recordResponse = await request.send();
+    String responseBody = await recordResponse.stream.bytesToString();
+    Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
+    String id = jsonResponse['id'];
+    var transcriptResponce = http.get(Uri.parse('$transcriptURi$id'));
     currentRecording.duration = secondsCounter;
+    currentRecording.id = id;
+    print('id' + '$id');
     await rbox.add(currentRecording); //Add the recording to the database
   }
   recording = false; //No longer recording
   secondsCounter = 0; //reset counter to 0
   rcrdIcon = const Icon(Icons.mic_off_outlined);  
   message = 'Recording Stopped';
-  var request = new http.MultipartRequest('POST', uri);
-  final httpRecording = await http.MultipartFile.fromPath('Recording', path);
-  request.files.add(httpRecording);
-  final response = await request.send();
-  //print('${response.statusCode}' + 'this is the responce');
+
+
 }
 pauseRecording(){
   recording = false; //not recording
