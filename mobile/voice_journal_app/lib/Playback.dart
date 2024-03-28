@@ -6,7 +6,6 @@ import 'schema.dart';
 //----Initializing vairables----
 String title ='';
 String audioFile ='';
-Icon stateIcon = const Icon(Icons.play_arrow);
 bool playing = false;
 late PlayerController controller;
 int duration = 0;
@@ -23,13 +22,9 @@ displayRecording(Recording givenRecording) async{ //function to get information 
   audioPlayerPrep(); //Initialize the audio player
 }
 playbackRecording()async { //play the playback
-  playing = true;
-  stateIcon = const Icon(Icons.pause);
   await controller.startPlayer(finishMode: FinishMode.loop); //start playback, loop recording when we get to the end of it.
 }
 pauseRecording()async { //pause the playback
-  playing = false;
-  stateIcon = const Icon(Icons.play_arrow);
   await controller.pausePlayer(); //pause recording
 }
 audioPlayerPrep()async{ //initialize the audio player
@@ -51,7 +46,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
   @override
   initState(){ //Page Initialization code, moved frome changed state.
     super.initState();
-    controller.onCompletion.listen((event){ pauseRecording(); setState((){});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
+    controller.onCompletion.listen((event){ pauseRecording(); setState((){playing = !playing;});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
   }
   changeState(){
     if(playing){ //If the recording is playing
@@ -60,6 +55,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
       playbackRecording(); //play it
     }
     setState(() { //visual update for the pause and play button
+      playing = !playing;
     });
   }
   @override
@@ -126,7 +122,6 @@ class _PlaybackPageState extends State<PlaybackPage>{
                   controller.stopAllPlayers();
                   controller.dispose();
                   playing = false;
-                  stateIcon = const Icon(Icons.play_arrow);
                 }
               }, child: const Text(' '),
             )
@@ -144,7 +139,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
           tooltip: 'Record',
           backgroundColor: AppColors.accentColor, //button background colour
           splashColor: Colors.red[200],     //button click animation
-          child: stateIcon,
+          child: playing ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
         ),
       ),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, // Centers the button above the bar
