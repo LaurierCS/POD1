@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'theme.dart';
+import 'Emotions_enums.dart';
 
 enum TimeFrame { all, year, month, week }
-enum Emotions {
- 	happiness, // id = 0
-  sadness, // id = 1
-  anger, // id = 2
-  fear, // id = 3
-  disgust, // id = 4
-  surprise, // id = 5
-}
+
 
 class EmotionCount {
   final String emotion;
@@ -136,7 +130,9 @@ Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> 
                 topTitles: SideTitles(showTitles: false),
               ),
               barTouchData: BarTouchData(
+                enabled: true,
                 touchTooltipData: BarTouchTooltipData(
+                  fitInsideHorizontally: true,
                   tooltipBgColor: Colors.blueGrey,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final String emotion = data[group.x.toInt()].emotion;
