@@ -5,6 +5,7 @@ import 'RecordingPage.dart';
 import 'package:hive/hive.dart'; //Importing the local database
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
+import 'stats.dart'; 
 
 //init variables
 //end of variables

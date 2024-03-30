@@ -3,6 +3,7 @@ import 'package:voice_journal_app/theme.dart';
 import 'home.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
+import 'theme.dart'; 
  
 void main()async { 
   await Hive.initFlutter(); //Initialize hive for flutter crucial step
@@ -13,12 +14,11 @@ void main()async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
-@override
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EMOZ', // Your app title
-     theme: ThemeData(
+      theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primaryColor, // Use primaryColor as seed color
           primary: AppColors.primaryColor,
