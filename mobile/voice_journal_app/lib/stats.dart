@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'home.dart';
 import 'theme.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'schema.dart';
 import 'Emotions_enums.dart';
+
 
 enum TimeFrame { all, year, month, week }
 
-
 class EmotionCount {
-  final String emotion;
-  final int count;
-  EmotionCount(this.emotion, this.count);
+  final Emotions emotion;
+  int count;
+  EmotionCount(this.emotion, [this.count=0]);
 }
 
 class StatsPage extends StatefulWidget {
@@ -106,7 +109,7 @@ class _StatsPageState extends State<StatsPage> {
       ),
     );
   }
-Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> pieSections, List<EmotionCount> data) {
+  Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> pieSections, List<EmotionCount> data) {
   return Column(
     children: [
       // Bar Chart Expanded Widget
@@ -135,7 +138,7 @@ Widget buildCharts(List<BarChartGroupData> barGroups, List<PieChartSectionData> 
                   fitInsideHorizontally: true,
                   tooltipBgColor: Colors.blueGrey,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                    final String emotion = data[group.x.toInt()].emotion;
+                    final Emotions emotion = data[group.x.toInt()].emotion;
                     final String count = data[group.x.toInt()].count.toString();
                     return BarTooltipItem(
                       '$emotion: $count',
@@ -183,44 +186,88 @@ Expanded(
   );
 }
 Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
-  await Future.delayed(const Duration(seconds: 2)); // Simulate network/database delay
-
-  // Example mock data for different spans
+  var box = await Hive.openBox<Recording>('recordings'); // recordings not emotion counts
+  //Create emotion counts starting at 0 and cretaing a loop
+  //add based on emotion and check that it is within the time frame
+  //What I had before but no longer static
+  //check date and then subract 30 and if a recording is greater than 30 it goes to add month and so and so on so we could do it at a time for all 4
+  //check if it has an emoution add to count if it has it add to the recordings
+  //Return as before 
+  // Assuming you want to return all items in the box
+  // return box.values.toList();
   List<EmotionCount> allData = [
-    EmotionCount('Happiness', 100),
-    EmotionCount('Sadness', 70),
-    EmotionCount('Fear', 40),
-    EmotionCount('Surprise', 80),
-    EmotionCount('Anger', 60),
-    EmotionCount('Disgust', 20),
+    EmotionCount(Emotions.happiness),
+    EmotionCount(Emotions.sadness),
+    EmotionCount(Emotions.fear),
+    EmotionCount(Emotions.surprise),
+    EmotionCount(Emotions.anger),
+    EmotionCount(Emotions.disgust),
   ];
 
   List<EmotionCount> yearData = [
-    EmotionCount('Happiness', 90),
-    EmotionCount('Sadness', 50),
-    EmotionCount('Fear', 30),
-    EmotionCount('Surprise', 70),
-    EmotionCount('Anger', 55),
-    EmotionCount('Disgust', 15),
+    EmotionCount(Emotions.happiness),
+    EmotionCount(Emotions.sadness),
+    EmotionCount(Emotions.fear),
+    EmotionCount(Emotions.surprise),
+    EmotionCount(Emotions.anger),
+    EmotionCount(Emotions.disgust),
   ];
 
   List<EmotionCount> monthData = [
-    EmotionCount('Happiness', 80),
-    EmotionCount('Sadness', 40),
-    EmotionCount('Fear', 20),
-    EmotionCount('Surprise', 60),
-    EmotionCount('Anger', 45),
-    EmotionCount('Disgust', 5),
+    EmotionCount(Emotions.happiness),
+    EmotionCount(Emotions.sadness),
+    EmotionCount(Emotions.fear),
+    EmotionCount(Emotions.surprise),
+    EmotionCount(Emotions.anger),
+    EmotionCount(Emotions.disgust),
   ];
 
   List<EmotionCount> weekData = [
-    EmotionCount('Happiness', 10),
-    EmotionCount('Sadness', 7),
-    EmotionCount('Fear', 3),
-    EmotionCount('Surprise', 5),
-    EmotionCount('Anger', 8),
-    EmotionCount('Disgust', 4),
+    EmotionCount(Emotions.happiness),
+    EmotionCount(Emotions.sadness),
+    EmotionCount(Emotions.fear),
+    EmotionCount(Emotions.surprise),
+    EmotionCount(Emotions.anger),
+    EmotionCount(Emotions.disgust),
   ];
+  DateTime currTime = DateTime.now();
+  for (Recording recordingInstance in box.values){
+    if (recordingInstance.timeStamp.isAfter(currTime.subtract(const Duration(days: 365)))){
+      for (Emotions emotion in recordingInstance.emotion){
+        for (EmotionCount emotionCount in yearData){
+          if (emotionCount.emotion == emotion){
+            emotionCount.count++;
+          }
+        }
+      }
+    }
+    if (recordingInstance.timeStamp.isAfter(currTime.subtract(const Duration(days: 30)))){
+      for (Emotions emotion in recordingInstance.emotion){
+        for (EmotionCount emotionCount in monthData){
+          if (emotionCount.emotion == emotion){
+            emotionCount.count++;
+          }
+        }
+      }
+    }
+    if (recordingInstance.timeStamp.isAfter(currTime.subtract(const Duration(days: 7)))){
+      for (Emotions emotion in recordingInstance.emotion){
+        for (EmotionCount emotionCount in weekData){
+          if (emotionCount.emotion == emotion){
+            emotionCount.count++;
+          }
+        }
+      }
+    }
+    for (Emotions emotion in recordingInstance.emotion){
+      for (EmotionCount emotionCount in allData){
+        if (emotionCount.emotion == emotion){
+          emotionCount.count++;
+        }
+      }
+    }
+  }
+
 
   // Switch statement to return data based on selected time span
   switch (_selectedTimeFrame) {
@@ -236,19 +283,19 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
       return allData; // Default case returns all data
   }
 }
-  Color getColorForEmotion(String emotion) {
+  Color getColorForEmotion(Emotions emotion) {
     switch (emotion) {
-      case 'Happiness':
+      case Emotions.happiness:
         return AppColors.happiness;
-      case 'Sadness':
+      case Emotions.sadness:
         return AppColors.sadness;
-      case 'Fear':
+      case Emotions.fear:
         return AppColors.fear;
-      case 'Surprise':
+      case Emotions.surprise:
         return AppColors.surprise;
-      case 'Anger':
+      case Emotions.anger:
         return AppColors.anger;
-      case 'Disgust':
+      case Emotions.disgust:
         return AppColors.disgust;
       default:
         return Colors.grey; // A default color for unknown emotions

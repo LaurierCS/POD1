@@ -4,7 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
+<<<<<<< Updated upstream
   record_windows
+=======
+>>>>>>> Stashed changes
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
