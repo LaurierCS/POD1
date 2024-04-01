@@ -3,10 +3,12 @@ import 'package:intl/intl.dart'; // library for date calculations, formatting, l
 import 'day_details.dart'; // details page
 
 void main() {
-  runApp(CalendarApp());
+  runApp(const CalendarApp());
 }
 
 class CalendarApp extends StatelessWidget {
+  const CalendarApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,12 +16,14 @@ class CalendarApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CalendarPage(),
+      home: const CalendarPage(),
     );
   }
 }
 
 class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
+
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -30,17 +34,17 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(252, 252, 252, 1),
+      backgroundColor: const Color.fromRGBO(252, 252, 252, 1),
       body: Column(
         children: <Widget>[
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0), //padding on edge
+            padding: const EdgeInsets.symmetric(horizontal: 16.0), //padding on edge
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.arrow_back),
                   onPressed: () {
                     setState(() {
                       _selectedDate = DateTime(_selectedDate.year, _selectedDate.month - 1, 1);
@@ -49,10 +53,10 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 Text(
                   DateFormat.yMMM().format(_selectedDate),
-                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                  icon: Icon(Icons.arrow_forward),
+                  icon: const Icon(Icons.arrow_forward),
                   onPressed: () {
                     setState(() {
                       _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + 1, 1);
@@ -62,11 +66,11 @@ class _CalendarPageState extends State<CalendarPage> {
               ],
             ),
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
@@ -92,7 +96,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: Center(
                       child: Text(
                         '${day.day}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 255, 255, 255),
                         ),

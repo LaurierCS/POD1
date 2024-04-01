@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'theme.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,7 +15,7 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end, // Aligns children to the bottom
             crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches children horizontally to match the column width
             children: <Widget>[
-              Text(
+              const Text(
                 'Emoz',
                 textAlign: TextAlign.center, //
                 style: TextStyle(
@@ -22,15 +24,15 @@ class HomePage extends StatelessWidget {
                   color: Colors.black, 
                 ),
               ),
-              SizedBox(height: 20), // Adds space between the title and the first container
+              const SizedBox(height: 20), // Adds space between the title and the first container
               Container(
                 height: 200,
                 decoration: BoxDecoration(
                   color: AppColors.secondaryColor, // Background color
                   borderRadius: BorderRadius.circular(10), // Rounds corners
-                ),
-                child: Center(child: Text('Emotion Stats')), // Placeholder text
-                margin: EdgeInsets.only(bottom: 20, top: 20), // Space between the rectangles and additional top padding
+                ), // Placeholder text
+                margin: const EdgeInsets.only(bottom: 20, top: 20),
+                child: const Center(child: Text('Emotion Stats')), // Space between the rectangles and additional top padding
               ),
               Expanded( // 
                 child: Container(
@@ -54,16 +56,16 @@ class HomePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces icons evenly
           children: <Widget>[
-            IconButton(icon: Icon(Icons.auto_graph), onPressed: () {}),
-            IconButton(icon: Icon(Icons.home), onPressed: () {}),
-            IconButton(icon: Icon(Icons.date_range), onPressed: () {}),
+            IconButton(icon: const Icon(Icons.auto_graph), onPressed: () {}),
+            IconButton(icon: const Icon(Icons.home), onPressed: () {}),
+            IconButton(icon: const Icon(Icons.date_range), onPressed: () {}),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        child: Icon(Icons.add_circle_rounded),
         backgroundColor: AppColors.accentColor,
+        child: const Icon(Icons.add_circle_rounded),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, 
     );
