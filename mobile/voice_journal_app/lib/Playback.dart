@@ -1,5 +1,4 @@
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
-import 'package:hive/hive.dart';
 import 'theme.dart';
 import 'package:flutter/material.dart';
 import 'schema.dart';
