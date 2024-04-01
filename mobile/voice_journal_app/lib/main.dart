@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'emotion_count.g.dart'; // Adjust the path as needed
+import 'schema.dart'; // Your schema import
 import 'stats.dart'; // Your StatsPage import
 import 'theme.dart'; // Your theme import
+import 'home.dart'; // Your HomePage import
 
 void main() async {
   // Ensure widgets are initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Hive
   await Hive.initFlutter();
 
   // Register the adapter
-  Hive.registerAdapter(EmotionCountAdapter());
+  Hive.registerAdapter(RecordingAdapter());
 
-  // Open a box
-  await Hive.openBox<EmotionCount>('emotionCounts');
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

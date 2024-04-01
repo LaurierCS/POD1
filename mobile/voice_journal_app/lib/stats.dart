@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'home.dart';
 import 'theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
@@ -16,7 +15,7 @@ class EmotionCount {
 }
 
 class StatsPage extends StatefulWidget {
-  StatsPage({Key? key}) : super(key: key);
+  const StatsPage({super.key});
   @override
   _StatsPageState createState() => _StatsPageState();
 }
@@ -61,7 +60,7 @@ class _StatsPageState extends State<StatsPage> {
               }).toList(),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: FutureBuilder<List<EmotionCount>>(
               future: fetchEmotionCountsFromDatabase(),
@@ -95,7 +94,7 @@ class _StatsPageState extends State<StatsPage> {
                             value: emotionCount.count.toDouble(),
                             title: '${(emotionCount.count / totalEmotionCount * 100).toStringAsFixed(1)}%',
                             radius: MediaQuery.of(context).size.width / 7,
-                            titleStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+                            titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xffffffff)),
                           ))
                       .toList();
                   return buildCharts(barGroups, pieSections, snapshot.data!);
@@ -170,10 +169,10 @@ Expanded(
               value: section.value,
               title: section.title,
               radius: MediaQuery.of(context).size.width / 3, // This increases the pie chart size
-              titleStyle: TextStyle(
+              titleStyle: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xffffffff),
+                color: Color(0xffffffff),
               ),
             ),
           ).toList(),
