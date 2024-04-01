@@ -13,12 +13,12 @@ class EmotionCount {
 }
 
 class StatsPage extends StatefulWidget {
-  StatsPage({Key? key}) : super(key: key);
+  const StatsPage({super.key});
   @override
-  _StatsPageState createState() => _StatsPageState();
+  StatsPageState createState() => StatsPageState();
 }
 
-class _StatsPageState extends State<StatsPage> {
+class StatsPageState extends State<StatsPage> {
   TimeFrame _selectedTimeFrame = TimeFrame.all; // Default to 'all'
 
   // Mapping emotions to emojis for display under bars and on pie chart sections

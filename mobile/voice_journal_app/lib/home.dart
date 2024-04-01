@@ -5,7 +5,6 @@ import 'RecordingPage.dart';
 import 'package:hive/hive.dart'; //Importing the local database
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
-import 'stats.dart'; 
 
 //init variables
 //end of variables
@@ -15,6 +14,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 class RecordingList extends StatelessWidget {
+  const RecordingList({super.key});
+
   Future<List<Recording>> _fetchRecordings() async {
     final box = await Hive.openBox<Recording>('recordings');
     return box.values.toList();
@@ -116,16 +117,6 @@ class HomePageState extends State<HomePage>{
                 ),
               ],
             ),
-          ),
-        ),
-        bottomNavigationBar: BottomAppBar(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces icons evenly
-            children: <Widget>[
-              IconButton(icon: const Icon(Icons.auto_graph), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.home), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.date_range), onPressed: () {}),
-            ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
