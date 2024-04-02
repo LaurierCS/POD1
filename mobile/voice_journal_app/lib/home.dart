@@ -10,6 +10,7 @@ import 'schema.dart';
 bool boxOpened = false;
 var rbox = Hive.box<Recording>('recordings');
 //end of variables
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -67,10 +68,9 @@ class HomePageState extends State<HomePage>{
                         ? TextButton(
                             onPressed: () {
                               if(recording != (null)){
-                              displayRecording(recording);
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const PlaybackPage(title: 'playback page')),
+                                  MaterialPageRoute(builder: (context) => PlaybackPage(title: 'playback page', callback: updateList, recording: recording)),
                                 );
                               }
                             },

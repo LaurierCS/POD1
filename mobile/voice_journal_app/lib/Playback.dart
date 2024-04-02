@@ -1,27 +1,25 @@
+import 'dart:convert';
+
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
 import 'package:hive/hive.dart';
 import 'theme.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'schema.dart';
 //----Initializing vairables----
+late var pbox;
 String title ='';
 String audioFile ='';
 Icon stateIcon = const Icon(Icons.play_arrow);
 bool playing = false;
+String transcript = "Transcript will appear here";
 late PlayerController controller;
 int duration = 0;
+String apiId = "";
+String transcripUrl = "http://35.211.11.4:8000/api/transcripts/";
 //----Done Initializing variables----
 //hello
-displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
-  title = givenRecording.title;
-  audioFile = givenRecording.audioFile;
-  duration = givenRecording.duration;
-  if(givenRecording.isTranscribed){
-    //get transcription file here.
-  }
-  controller = PlayerController();
-  audioPlayerPrep(); //Initialize the audio player
-}
+
 playbackRecording()async { //play the playback
   playing = true;
   stateIcon = const Icon(Icons.pause);
@@ -42,15 +40,54 @@ audioPlayerPrep()async{ //initialize the audio player
   controller.updateFrequency = UpdateFrequency.medium; //controller visual update speed
 }
 class PlaybackPage extends StatefulWidget{
-  const PlaybackPage({super.key, required this.title});
+  const PlaybackPage({super.key, required this.title, required this.callback, required this.recording});
   final String title;
+  final Recording recording;
+  final VoidCallback callback; 
   @override
   State<PlaybackPage> createState() => _PlaybackPageState();
 }
 class _PlaybackPageState extends State<PlaybackPage>{
+  late Recording recording; 
+  displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
+    controller = PlayerController();
+    audioPlayerPrep(); //Initialize the audio player
+    audioFile = givenRecording.audioFile;
+    apiId = givenRecording.id;
+    duration = givenRecording.duration;
+    if(!givenRecording.isTranscribed){
+      //get transcription file here.
+      String fullUrl = '$transcripUrl$apiId';
+      final transcriptUri = Uri.parse(fullUrl);
+      final transcriptResponce = await http.get(transcriptUri);
+      final responseData = json.decode(transcriptResponce.body);
+      transcript = responseData['transcript'];
+      if(transcript != ""){
+        String fetchedTitle = responseData['entry_title'];
+        givenRecording.title = fetchedTitle;
+        givenRecording.isTranscribed = true;
+        givenRecording.transcriptFile = transcript;
+        //Hive.openBox('recordings');
+        pbox = Hive.box<Recording>('recordings');
+        pbox.get(givenRecording.key); //fetch the current box item
+        givenRecording.title = fetchedTitle;
+        pbox.put(givenRecording.key, givenRecording);
+        setState(() {
+          title = fetchedTitle;
+        });
+      }
+      print(fullUrl);
+    } else{
+      print("This has been opened before");
+      transcript = givenRecording.transcriptFile;
+    }
+  }
   @override
   initState(){ //Page Initialization code, moved frome changed state.
     super.initState();
+    recording = widget.recording;
+    title = recording.title;
+    displayRecording(recording);
     controller.onCompletion.listen((event){ pauseRecording(); setState((){});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
   }
   changeState(){
@@ -112,10 +149,10 @@ class _PlaybackPageState extends State<PlaybackPage>{
                 borderRadius: BorderRadius.circular(20),
               ),
                 child: 
-                const Column(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children:[
-                    Text('Transcript will go here'),
+                    Text(transcript),
                   ]
                 ),
             ),
@@ -126,6 +163,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
                   controller.stopAllPlayers();
                   controller.dispose();
                   playing = false;
+                  widget.callback();
                   stateIcon = const Icon(Icons.play_arrow);
                 }
               }, child: const Text(' '),
