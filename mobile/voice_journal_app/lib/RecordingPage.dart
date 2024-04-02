@@ -27,7 +27,6 @@ int secondsCounter = 0;
 late Timer _timer;
 String message = "Press the record button to start";
 bool boxCreated = false;
-Icon rcrdIcon = const Icon(Icons.mic_off_outlined);  
 bool recordingStarted = false;
 bool recording = false; //Establish a bool to keep track of button state
 bool transcribed = false; //Transcribed bool **just a placeholder for now**
@@ -53,15 +52,14 @@ startRecording() async{
   presently = DateTime.now();
   formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently);
   file = '$formattedDateTime.m4a';
-  controller.bitRate = 1900000;
-  controller.sampleRate = 5000000;
-  rcrdIcon = const Icon(Icons.pause);
+  controller.bitRate = 192000;
+  controller.sampleRate = 50000;
   appDirectory = await getApplicationDocumentsDirectory();  //get the apps directory useful later
   //appDirectory = Directory('/storage/emulated/0/Download'); //Set directory for file to go to
   String exactDirectory = appDirectory.path;
   path = '$exactDirectory' '/$file';//Set the path to where it should go + the current date and time formatting with .m4a at the end
-  recording = true; 
   //rbox = await Hive.openBox<Recording>('recordings'); //open the box so we can put things inside of it.
+  await Hive.openBox<Recording>('recordings');
   rbox = Hive.box<Recording>('recordings');
   int key = rbox.length;
   currentRecording = Recording(id: '',title: formattedDateTime,audioFile: path,transcriptFile: '',timeStamp: presently,emotion:[Emotions.happy, Emotions.anger],isTranscribed: false,transcriptionId:'', duration: 0,key: key); //create the recording class
@@ -91,22 +89,14 @@ stopRecording() async{
    // print('id' + '$id');
     await rbox.add(currentRecording); //Add the recording to the database
   }
-  recording = false; //No longer recording
   secondsCounter = 0; //reset counter to 0
-  rcrdIcon = const Icon(Icons.mic_off_outlined);  
   message = 'Recording Stopped';
-
-
+  Hive.close();
 }
 pauseRecording(){
-  recording = false; //not recording
   controller.pause(); //pause the recording
-  rcrdIcon = const Icon(Icons.play_arrow);
   message = 'Recording paused';
   displaySaved();
-}
-void main() async{
-  runApp(const MaterialApp(home: HomePage())); //Run the homepage if this page is ran on its own
 }
 class RecordingPage extends StatefulWidget{
   const RecordingPage({super.key, required this.title, required this.callback}); //takes in call back function to call when this page is closed, this refreashes the widget tree on the homepage to update the recent recordings list.
@@ -125,14 +115,13 @@ class _RecordingPageState extends State<RecordingPage>{
         if(!counting){
           _startCounting(); //Starts the displayed recording counter
         }
-        setState(() { //change state (icon of the button should change)
-        });
       } else if(recording){ //else if we are recording and the button was hit
         //recording = false; //stop recording
         await pauseRecording();
-        setState(() { //set state (change button icon)
-        });
       }
+      setState(() { //set state (change button icon)
+        recording = !recording;
+      });
     } else{
       message = 'permissions denied, no recording allowed';
     }
@@ -228,7 +217,7 @@ class _RecordingPageState extends State<RecordingPage>{
           tooltip: 'Record',
           backgroundColor: AppColors.accentColor, //button background colour
           splashColor: Colors.red[200],     //button click animation
-          child: rcrdIcon,
+          child: recording ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
         ),
       ),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, // Centers the button above the bar

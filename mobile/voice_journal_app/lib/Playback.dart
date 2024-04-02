@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
-import 'package:hive/hive.dart';
 import 'theme.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +9,6 @@ import 'schema.dart';
 late var pbox;
 String title ='';
 String audioFile ='';
-Icon stateIcon = const Icon(Icons.play_arrow);
 bool playing = false;
 String transcript = "Transcript will appear here";
 late PlayerController controller;
@@ -21,13 +19,9 @@ String transcripUrl = "http://35.211.11.4:8000/api/transcripts/";
 //hello
 
 playbackRecording()async { //play the playback
-  playing = true;
-  stateIcon = const Icon(Icons.pause);
   await controller.startPlayer(finishMode: FinishMode.loop); //start playback, loop recording when we get to the end of it.
 }
 pauseRecording()async { //pause the playback
-  playing = false;
-  stateIcon = const Icon(Icons.play_arrow);
   await controller.pausePlayer(); //pause recording
 }
 audioPlayerPrep()async{ //initialize the audio player
@@ -97,6 +91,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
       playbackRecording(); //play it
     }
     setState(() { //visual update for the pause and play button
+      playing = !playing;
     });
   }
   @override
@@ -164,7 +159,6 @@ class _PlaybackPageState extends State<PlaybackPage>{
                   controller.dispose();
                   playing = false;
                   widget.callback();
-                  stateIcon = const Icon(Icons.play_arrow);
                 }
               }, child: const Text(' '),
             )
@@ -182,7 +176,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
           tooltip: 'Record',
           backgroundColor: AppColors.accentColor, //button background colour
           splashColor: Colors.red[200],     //button click animation
-          child: stateIcon,
+          child: playing ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
         ),
       ),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked, // Centers the button above the bar

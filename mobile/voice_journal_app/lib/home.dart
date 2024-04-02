@@ -7,8 +7,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
 
 //init variables
-bool boxOpened = false;
-var rbox = Hive.box<Recording>('recordings');
 //end of variables
 
 class HomePage extends StatefulWidget {
@@ -16,6 +14,62 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => HomePageState();
 }
+class RecordingList extends StatelessWidget {
+  const RecordingList({super.key, required this.updateList});
+  final Function updateList;
+  Future<List<Recording>> _fetchRecordings() async {
+    final box = await Hive.openBox<Recording>('recordings');
+    return box.values.toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Recording>>(
+      future: _fetchRecordings(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text('No recordings available'),
+          );
+        } else {
+          Hive.close();
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final reversedIndex = snapshot.data!.length - 1 - index;
+              final recording = snapshot.data![reversedIndex];
+              return ListTile(
+                title: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PlaybackPage(title: 'playback page', callback: () => updateList(), recording: recording)),
+                    );
+                  },
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all<Color>(AppColors.lightGray),
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.mutedTeal),
+                  ),
+                  child: Text(recording.title),
+                ),
+              );
+            },
+          );
+          
+        }
+      },
+    );
+  }
+}
+
 class HomePageState extends State<HomePage>{
   void updateList(){
     setState(() {
@@ -58,46 +112,11 @@ class HomePageState extends State<HomePage>{
                       color: AppColors.primaryColor, // Background color of the rectangle
                       borderRadius: BorderRadius.circular(10), // Rounded corners
                     ),
-                    child: ListView.builder( 
-                      itemCount: rbox.length, // Number of items in the list, for demonstration
-                      itemBuilder: (context, index){
-                      int reversedIndex = rbox.length - 1 - index;
-                      final recording = rbox.getAt(reversedIndex);
-                      return ListTile(
-                    title: recording != null
-                        ? TextButton(
-                            onPressed: () {
-                              if(recording != (null)){
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => PlaybackPage(title: 'playback page', callback: updateList, recording: recording)),
-                                );
-                              }
-                            },
-                            style: ButtonStyle(
-                              foregroundColor: MaterialStateProperty.all<Color>(AppColors.lightGray),
-                              backgroundColor: MaterialStateProperty.all<Color>(AppColors.mutedTeal),
-                            ),
-                            child: Text(recording.title),
-                          )
-                        : const Text('No recording available'),
-                       );
-                      },
-                    ),
+                    child: RecordingList(updateList: updateList)
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-        bottomNavigationBar: BottomAppBar(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces icons evenly
-            children: <Widget>[
-              IconButton(icon: const Icon(Icons.auto_graph), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.home), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.date_range), onPressed: () {}),
-            ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
