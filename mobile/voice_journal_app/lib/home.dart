@@ -119,16 +119,6 @@ class HomePageState extends State<HomePage>{
             ),
           ),
         ),
-        bottomNavigationBar: BottomAppBar(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround, // Spaces icons evenly
-            children: <Widget>[
-              IconButton(icon: const Icon(Icons.auto_graph), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.home), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.date_range), onPressed: () {}),
-            ],
-          ),
-        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
               Navigator.push(
