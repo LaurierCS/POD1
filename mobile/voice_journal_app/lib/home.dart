@@ -5,8 +5,10 @@ import 'RecordingPage.dart';
 import 'package:hive/hive.dart'; //Importing the local database
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
+import 'Emotions_enums.dart';
 
 //init variables
+MaterialStateProperty <Color> emotionColor = MaterialStateProperty.all<Color>(AppColors.mutedTeal);
 //end of variables
 
 class HomePage extends StatefulWidget {
@@ -45,6 +47,25 @@ class RecordingList extends StatelessWidget {
             itemBuilder: (context, index) {
               final reversedIndex = snapshot.data!.length - 1 - index;
               final recording = snapshot.data![reversedIndex];
+                int length = recording.emotion.length;
+              if(recording.isTranscribed && length != 0){ //if the recording has a transcription and therefore an emotion associated with it
+                length--; //reduce length by one
+                if(recording.emotion[length] == Emotions.sadness || recording.emotion[0] == Emotions.sadness){
+                  emotionColor = MaterialStateProperty.all<Color>(Colors.blue[300]!);
+                } else if(recording.emotion[length] == Emotions.anger){
+                  emotionColor = MaterialStateProperty.all<Color>(Colors.red[300]!);
+                }
+                else if(recording.emotion[length] == Emotions.disgust || recording.emotion[0] == Emotions.disgust){
+                  emotionColor = MaterialStateProperty.all<Color>(Colors.brown[300]!);
+                }else if(recording.emotion[length] == Emotions.happiness){ //check the emotion
+                  emotionColor = MaterialStateProperty.all<Color>(Color.fromARGB(255, 247, 231, 127)!); //set the background color as a result
+                }
+                else{
+                  emotionColor = MaterialStateProperty.all<Color>(Colors.orange[300]!);
+                }
+              } else{
+                emotionColor = MaterialStateProperty.all<Color>(AppColors.mutedTeal);
+              }
               return ListTile(
                 title: TextButton(
                   onPressed: () {
@@ -54,8 +75,8 @@ class RecordingList extends StatelessWidget {
                     );
                   },
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(AppColors.lightGray),
-                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.mutedTeal),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                    backgroundColor: emotionColor
                   ),
                   child: Text(recording.title),
                 ),

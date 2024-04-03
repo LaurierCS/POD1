@@ -45,11 +45,11 @@ class PlaybackPage extends StatefulWidget{
 class _PlaybackPageState extends State<PlaybackPage>{
   late Recording recording; 
   displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
-    controller = PlayerController();
-    audioPlayerPrep(); //Initialize the audio player
     audioFile = givenRecording.audioFile;
     apiId = givenRecording.id;
     duration = givenRecording.duration;
+      controller = PlayerController();
+    audioPlayerPrep(); //Initialize the audio player
     if(!givenRecording.isTranscribed){
       //get transcription file here.
       String fullUrl = '$transcripUrl$apiId';
@@ -60,7 +60,10 @@ class _PlaybackPageState extends State<PlaybackPage>{
       if(transcript != ""){
         String fetchedTitle = responseData['entry_title'];
         List<String> emotionsString = responseData['emotions'].split(',');
-        List<Emotions> emotionList = emotionsString.map((str) => Emotions.values[int.parse(str)]).toList();
+        List<Emotions> emotionList = emotionsString
+        .where((str) => str.isNotEmpty) // Filter out empty strings
+        .map((str) => Emotions.values[int.parse(str)])
+        .toList();
         givenRecording.emotion = emotionList;
         print(emotionList.toString());
         givenRecording.title = fetchedTitle;

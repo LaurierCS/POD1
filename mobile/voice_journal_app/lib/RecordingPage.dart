@@ -65,8 +65,6 @@ startRecording() async{
 }
 stopRecording() async{
   await controller.stop();
-  File file = File(path);
-  int size = await file.length();
   //controller.dispose();
   if(counting){ //if the timer was started
     counting = false;//Don't count anymore
@@ -83,7 +81,6 @@ stopRecording() async{
     //var transcriptResponce = http.get(Uri.parse('$transcriptURi$id'));
     currentRecording.duration = secondsCounter;
     currentRecording.id = id;
-   // print('id' + '$id');
     await rbox.put(currentRecording.key, currentRecording); //Add the recording to the database
   }
   secondsCounter = 0; //reset counter to 0

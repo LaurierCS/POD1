@@ -1,9 +1,21 @@
+import 'dart:js_interop';
+
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:voice_journal_app/schema.dart';
 import 'theme.dart';
+import 'package:hive/hive.dart';
 import 'Emotions_enums.dart';
-
+//initializing variables
 enum TimeFrame { all, year, month, week }
+List<Emotions> allList =[];
+List<Emotions> yearList =[];
+List<Emotions> monthList =[];
+List<Emotions> weekList =[];
+//Done initialization
+
+
 
 
 class EmotionCount {
@@ -19,6 +31,11 @@ class StatsPage extends StatefulWidget {
 }
 
 class StatsPageState extends State<StatsPage> {
+  @override
+  initState(){ //Page Initialization code, moved frome changed state.
+    super.initState();
+    //getEmotionsFromDatabase();
+  }
   TimeFrame _selectedTimeFrame = TimeFrame.all; // Default to 'all'
 
   // Mapping emotions to emojis for display under bars and on pie chart sections
@@ -186,40 +203,40 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
   await Future.delayed(const Duration(seconds: 2)); // Simulate network/database delay
 
   // Example mock data for different spans
+  //List<int> values = countEmotions(allList);
   List<EmotionCount> allData = [
-    EmotionCount('Happiness', 100),
-    EmotionCount('Sadness', 70),
-    EmotionCount('Fear', 40),
-    EmotionCount('Surprise', 80),
-    EmotionCount('Anger', 60),
-    EmotionCount('Disgust', 20),
+    EmotionCount('Happiness', 0),
+    EmotionCount('Sadness', 1),
+    EmotionCount('Fear', 2),
+    EmotionCount('Surprise', 3),
+    EmotionCount('Anger', 4),
+    EmotionCount('Disgust', 5),
   ];
-
-  List<EmotionCount> yearData = [
-    EmotionCount('Happiness', 90),
-    EmotionCount('Sadness', 50),
-    EmotionCount('Fear', 30),
-    EmotionCount('Surprise', 70),
-    EmotionCount('Anger', 55),
-    EmotionCount('Disgust', 15),
+  List<EmotionCount> yearData = [ 
+    EmotionCount('Happiness', 0),
+    EmotionCount('Sadness', 1),
+    EmotionCount('Fear', 2),
+    EmotionCount('Surprise', 3),
+    EmotionCount('Anger', 4),
+    EmotionCount('Disgust', 5),
   ];
 
   List<EmotionCount> monthData = [
-    EmotionCount('Happiness', 80),
-    EmotionCount('Sadness', 40),
-    EmotionCount('Fear', 20),
-    EmotionCount('Surprise', 60),
-    EmotionCount('Anger', 45),
+    EmotionCount('Happiness', 0),
+    EmotionCount('Sadness', 1),
+    EmotionCount('Fear', 2),
+    EmotionCount('Surprise',3),
+    EmotionCount('Anger', 4),
     EmotionCount('Disgust', 5),
   ];
 
   List<EmotionCount> weekData = [
-    EmotionCount('Happiness', 10),
-    EmotionCount('Sadness', 7),
-    EmotionCount('Fear', 3),
-    EmotionCount('Surprise', 5),
-    EmotionCount('Anger', 8),
-    EmotionCount('Disgust', 4),
+    EmotionCount('Happiness', 0),
+    EmotionCount('Sadness', 1),
+    EmotionCount('Fear', 2),
+    EmotionCount('Surprise', 3),
+    EmotionCount('Anger', 4),
+    EmotionCount('Disgust', 5),
   ];
 
   // Switch statement to return data based on selected time span
@@ -254,4 +271,64 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
         return Colors.grey; // A default color for unknown emotions
   }
 }
+getEmotionsFromDatabase(){
+  DateTime dayCheck = DateTime.now().subtract(const Duration(days: 1));
+  DateTime monthCheck = DateTime.now().subtract(const Duration(days: 31));
+  final rbox = Hive.box<Recording>('recordings');
+  int iterator = rbox.length;
+  for(int i = 0; i < iterator; i++){
+    var fetchedRecording = rbox.getAt(i);
+    if(fetchedRecording != null){
+      DateTime date = fetchedRecording.timeStamp;
+      bool isWeek = checkValid(date, 7); //check if the recording is less than a week old
+      if(isWeek){ //if the checked recording is less than a week old then it is therefore also less than a week, month and year old so add it to everything.
+        allList.addAll(fetchedRecording.emotion);
+        yearList.addAll(fetchedRecording.emotion); 
+        weekList.addAll(fetchedRecording.emotion); 
+        monthList.addAll(fetchedRecording.emotion);
+      } else{ //more than a week old
+        bool isMonth = checkValid(date, 31);
+        if(isMonth){
+          yearList.addAll(fetchedRecording.emotion);
+          monthList.addAll(fetchedRecording.emotion);
+          allList.addAll(fetchedRecording.emotion);
+        } else{ //more than a month old
+          bool isYear = checkValid(date, 365);
+          if(isYear){
+            allList.addAll(fetchedRecording.emotion);
+            yearList.addAll(fetchedRecording.emotion);
+          } else{ //more than a year old
+            allList.addAll(fetchedRecording.emotion); //okay so just add it to the all list.
+          }
+        }
+      }
+    }
+  }
+  print(allList.toString());
+  print(monthList.toString());
+  print(yearList.toString());
+  print(weekList.toString());
+
+}
+bool checkValid(DateTime date, int timePeriod){
+  DateTime weekCheck = DateTime.now().subtract(Duration(days: timePeriod));
+  DateTime now = DateTime.now();
+  return date.isAfter(weekCheck) && date.isBefore(now);
+}
+}
+List<int> countEmotions(List list){
+  List<int> count = [];
+  int hapCount = list.where((item) => item == Emotions.happiness).length;
+  int sadCount = list.where((item) => item == Emotions.sadness).length;
+  int fearCount = list.where((item) => item == Emotions.fear).length;
+  int surpriseCount = list.where((item) => item == Emotions.surprise).length;
+  int angreCount = list.where((item) => item == Emotions.anger).length;
+  int disCount = list.where((item) => item == Emotions.disgust).length;
+  count.add(hapCount);
+  count.add(sadCount);
+  count.add(fearCount);
+  count.add(surpriseCount);
+  count.add(angreCount);
+  count.add(disCount);
+  return count;
 }
