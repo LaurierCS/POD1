@@ -23,7 +23,6 @@ class RecordingList extends StatelessWidget {
     final box = Hive.box<Recording>('recordings');
     return box.values.toList();
   }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Recording>>(
@@ -48,37 +47,52 @@ class RecordingList extends StatelessWidget {
               final reversedIndex = snapshot.data!.length - 1 - index;
               final recording = snapshot.data![reversedIndex];
                 int length = recording.emotion.length;
+              List<Color> emotionColours = [];
               if(recording.isTranscribed && length != 0){ //if the recording has a transcription and therefore an emotion associated with it
-                length--; //reduce length by one
-                if(recording.emotion[length] == Emotions.sadness || recording.emotion[0] == Emotions.sadness){
-                  emotionColor = MaterialStateProperty.all<Color>(Colors.blue[300]!);
-                } else if(recording.emotion[length] == Emotions.anger){
-                  emotionColor = MaterialStateProperty.all<Color>(Colors.red[300]!);
+                for (int i = 0; i < length; i++){ //Iterate through the emotions in the recording and add the colour attached to that emotion to the gradient
+                  Emotions emotion = recording.emotion[i];
+                  if(emotion == Emotions.happiness){
+                    emotionColours.add(const Color.fromARGB(255, 228, 213, 113));
+                  } else if(emotion == Emotions.sadness){
+                    emotionColours.add(Colors.blue[300]!);
+                  } else if(emotion == Emotions.anger){
+                    emotionColours.add(Colors.red[300]!);
+                  } else if(emotion == Emotions.surprise){
+                    emotionColours.add(Colors.orange[300]!);
+                  } else{
+                    emotionColours.add(Colors.brown[300]!);
+                  }
                 }
-                else if(recording.emotion[length] == Emotions.disgust || recording.emotion[0] == Emotions.disgust){
-                  emotionColor = MaterialStateProperty.all<Color>(Colors.brown[300]!);
-                }else if(recording.emotion[length] == Emotions.happiness){ //check the emotion
-                  emotionColor = MaterialStateProperty.all<Color>(Color.fromARGB(255, 247, 231, 127)!); //set the background color as a result
-                }
-                else{
-                  emotionColor = MaterialStateProperty.all<Color>(Colors.orange[300]!);
-                }
+
               } else{
-                emotionColor = MaterialStateProperty.all<Color>(AppColors.mutedTeal);
+                emotionColours.add(AppColors.mutedTeal);
+              }
+              if(emotionColours.length == 1){ //if there is only one colour in the gradient list this will return an error. So lets just duplicate it.
+                emotionColours.add(emotionColours[0]);
               }
               return ListTile(
-                title: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => PlaybackPage(title: 'playback page', callback: () => updateList(), recording: recording)),
-                    );
-                  },
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                    backgroundColor: emotionColor
+                title: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: emotionColours,
+                    ),
+                    borderRadius: BorderRadius.circular(50),
                   ),
-                  child: Text(recording.title),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PlaybackPage(title: 'playback page', callback: () => updateList(), recording: recording)),
+                      );
+                    },
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                    ),
+                    child: Text(recording.title),
+                  ),
                 ),
               );
             },
@@ -95,6 +109,11 @@ class HomePageState extends State<HomePage>{
     setState(() {
       
     });
+  }
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+    updateList();
   }
   @override
   Widget build(BuildContext context) {

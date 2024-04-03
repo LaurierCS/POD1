@@ -147,7 +147,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
               ),
             ),  
             const SizedBox(height: 30),
-            Container( //Will be used to display how far in the recording we've played so far.
+            Container(
               alignment: Alignment.center,
               width: 370,
               height: 350,
@@ -156,13 +156,21 @@ class _PlaybackPageState extends State<PlaybackPage>{
                 color: AppColors.primaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
-                child: 
-                Column(
+              child: SingleChildScrollView(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children:[
-                    Text(transcript),
-                  ]
+                  children: [
+                    // Adding some padding to the top and bottom of the text for better appearance
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        transcript,
+                        style: const TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
             ),
             PopScope(
               canPop:true,
@@ -180,7 +188,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
       ),
       floatingActionButton: Container( //Recording button
         alignment: Alignment.bottomCenter,
-        margin: const EdgeInsets.only(bottom: 120),
+        margin: const EdgeInsets.only(bottom: 30),
         height: 70,
         width:70,
         // alignment: Alignment.center,

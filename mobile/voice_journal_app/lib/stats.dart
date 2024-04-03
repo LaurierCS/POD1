@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:voice_journal_app/schema.dart';
 import 'theme.dart';
 import 'package:hive/hive.dart';
 import 'Emotions_enums.dart';
+import 'package:http/http.dart' as http;
 //initializing variables
 enum TimeFrame { all, year, month, week }
 List<Emotions> allList =[];
@@ -265,7 +268,7 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
         return Colors.grey; // A default color for unknown emotions
   }
 }
-getEmotionsFromDatabase(){
+getEmotionsFromDatabase()async{
   weekList.clear(); //Clear the lists. I counldn't think of an easy way to stop repeats. This is crazy inefficient but I'm tight on time at the moment so unfortunately I'm just going with this.... Sorry. I should have probobly added the recording to the list so I could check the name and see if it's already in it. But yeah.
   monthList.clear();
   yearList.clear();
@@ -277,6 +280,33 @@ getEmotionsFromDatabase(){
   if(iterator > 0){
     for(int i = 0; i < iterator; i++){
       var fetchedRecording = rbox.getAt(i);
+      if(!fetchedRecording!.isTranscribed){ //if not transcribed.
+        String transcripUrl = "http://35.211.11.4:8000/api/transcripts/"; //get the http url
+        String apiId = fetchedRecording.id; //get the id from the recording
+        String fullUrl = '$transcripUrl$apiId'; //add the strings together to get the whole url
+        final transcriptUri = Uri.parse(fullUrl);
+        final transcriptResponce = await http.get(transcriptUri);
+        final responseData = json.decode(transcriptResponce.body);
+        String transcript = responseData['transcript'];
+        if(transcript != ""){
+          String fetchedTitle = responseData['entry_title'];
+          List<String> emotionsString = responseData['emotions'].split(',');
+          List<Emotions> emotionList = emotionsString
+          .where((str) => str.isNotEmpty) // Filter out empty strings
+          .map((str) => Emotions.values[int.parse(str)])
+          .toList();
+          fetchedRecording.emotion = emotionList;
+          print(emotionList.toString());
+          fetchedRecording.title = fetchedTitle;
+          fetchedRecording.isTranscribed = true;
+          fetchedRecording.transcriptFile = transcript;
+          fetchedRecording.title = fetchedTitle;
+          rbox.put(fetchedRecording.key, fetchedRecording);
+        }
+
+
+
+      }
       if(fetchedRecording != null){
         DateTime date = fetchedRecording.timeStamp;
         bool isWeek = checkValid(date, 7); //check if the recording is less than a week old
