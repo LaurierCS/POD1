@@ -29,10 +29,6 @@ class StatsPage extends StatefulWidget {
 
 class StatsPageState extends State<StatsPage> {
   @override
-  initState(){ //Page Initialization code, moved frome changed state.
-    super.initState();
-    getEmotionsFromDatabase();
-  }
   TimeFrame _selectedTimeFrame = TimeFrame.all; // Default to 'all'
 
   // Mapping emotions to emojis for display under bars and on pie chart sections
@@ -270,6 +266,11 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
   }
 }
 getEmotionsFromDatabase(){
+  weekList.clear(); //Clear the lists. I counldn't think of an easy way to stop repeats. This is crazy inefficient but I'm tight on time at the moment so unfortunately I'm just going with this.... Sorry. I should have probobly added the recording to the list so I could check the name and see if it's already in it. But yeah.
+  monthList.clear();
+  yearList.clear();
+  allList.clear();
+
   //This is a method which goes into the database and fetches all of the emotions in every recording in the Database. It then checks the timestamp contained in every recording and compares it with week, month, and year. Based on that it adds it to a list to be read by the stats page.
   final rbox = Hive.box<Recording>('recordings');
   int iterator = rbox.length;
