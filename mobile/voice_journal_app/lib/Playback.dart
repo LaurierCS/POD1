@@ -15,6 +15,7 @@ late PlayerController controller;
 int duration = 0;
 String apiId = "";
 String transcripUrl = "http://35.211.11.4:8000/api/transcripts/";
+var pbox = Hive.box<Recording>('recordings');
 //----Done Initializing variables----
 //hello
 
@@ -68,7 +69,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
         givenRecording.title = fetchedTitle;
         givenRecording.isTranscribed = true;
         givenRecording.transcriptFile = transcript;
-        final pbox = Hive.box<Recording>('recordings');
+        
         givenRecording.title = fetchedTitle;
         pbox.put(givenRecording.key, givenRecording);
         setState(() {
@@ -107,6 +108,15 @@ class _PlaybackPageState extends State<PlaybackPage>{
             AppBar(
               backgroundColor: AppColors.lightGray,
               title: Text(title),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    pbox.delete(recording.key);
+                    Navigator.of(context).pop();
+                  },
+                )
+              ]
             ), //Creating an app bar to have the back button on the top of the page
             const SizedBox(height: 40),
             Container(
