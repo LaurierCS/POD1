@@ -50,23 +50,36 @@ enum Page { stats, home, calendar }
 
 class _MainPageState extends State<MainPage> {
   Page _currPage = Page.home;
+  late GlobalKey<HomePageState> _homePageKey;
+  @override
+  void initState(){
+    super.initState();
+    _homePageKey = GlobalKey<HomePageState>();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currPage.index,
-        children: const <Widget>[
+        children:<Widget>[
           StatsPage(),
-          HomePage(),
-          Text("Calendar Page"),
+          HomePage(key: _homePageKey),
+          const Text("Calendar Page"),
         ],
       ),
       bottomNavigationBar: SizedBox(
         height: 80,
         child: BottomNavigationBar(
           currentIndex: _currPage.index,
-          onTap: (value) => setState(() => _currPage = Page.values[value]),
+          onTap: (value) {
+            if (_currPage.index != value) {
+              setState(() => _currPage = Page.values[value]);
+              if (Page.values[value] == Page.home) {
+                _homePageKey.currentState?.updateList(); // Trigger reload of HomePage
+              }
+            }
+          },
           showSelectedLabels: true,
           showUnselectedLabels: false,
           iconSize: 28,

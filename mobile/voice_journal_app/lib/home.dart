@@ -12,7 +12,7 @@ MaterialStateProperty <Color> emotionColor = MaterialStateProperty.all<Color>(Ap
 //end of variables
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
   @override
   State<HomePage> createState() => HomePageState();
 }
@@ -111,12 +111,10 @@ class HomePageState extends State<HomePage>{
     });
   }
   @override
-  void didChangeDependencies(){
-    super.didChangeDependencies();
-    updateList();
-  }
-  @override
   Widget build(BuildContext context) {
+    setState(() {
+      
+    });
     return Scaffold(
       body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0), // Horizontal padding for white space
