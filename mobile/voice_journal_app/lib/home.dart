@@ -18,7 +18,7 @@ class RecordingList extends StatelessWidget {
   const RecordingList({super.key, required this.updateList});
   final Function updateList;
   Future<List<Recording>> _fetchRecordings() async {
-    final box = await Hive.openBox<Recording>('recordings');
+    final box = Hive.box<Recording>('recordings');
     return box.values.toList();
   }
 
@@ -40,7 +40,6 @@ class RecordingList extends StatelessWidget {
             child: Text('No recordings available'),
           );
         } else {
-          Hive.close();
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {

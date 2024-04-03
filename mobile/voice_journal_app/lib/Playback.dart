@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
+import 'package:hive/hive.dart';
 import 'theme.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'schema.dart';
+import 'Emotions_enums.dart';
 //----Initializing vairables----
-late var pbox;
 String title ='';
 String audioFile ='';
 bool playing = false;
@@ -58,21 +59,21 @@ class _PlaybackPageState extends State<PlaybackPage>{
       transcript = responseData['transcript'];
       if(transcript != ""){
         String fetchedTitle = responseData['entry_title'];
+        List<String> emotionsString = responseData['emotions'].split(',');
+        List<Emotions> emotionList = emotionsString.map((str) => Emotions.values[int.parse(str)]).toList();
+        givenRecording.emotion = emotionList;
+        print(emotionList.toString());
         givenRecording.title = fetchedTitle;
         givenRecording.isTranscribed = true;
         givenRecording.transcriptFile = transcript;
-        //Hive.openBox('recordings');
-        pbox = Hive.box<Recording>('recordings');
-        pbox.get(givenRecording.key); //fetch the current box item
+        final pbox = Hive.box<Recording>('recordings');
         givenRecording.title = fetchedTitle;
         pbox.put(givenRecording.key, givenRecording);
         setState(() {
           title = fetchedTitle;
         });
       }
-      print(fullUrl);
     } else{
-      print("This has been opened before");
       transcript = givenRecording.transcriptFile;
     }
   }

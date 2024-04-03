@@ -49,7 +49,6 @@ void displaySaved(){ //Create a little pop up letting the user know their reccor
   );
 }
 startRecording() async{
-  presently = DateTime.now();
   formattedDateTime = DateFormat('yyy-MM-dd-HH-mm-ss').format(presently);
   file = '$formattedDateTime.m4a';
   controller.bitRate = 192000;
@@ -58,11 +57,9 @@ startRecording() async{
   //appDirectory = Directory('/storage/emulated/0/Download'); //Set directory for file to go to
   String exactDirectory = appDirectory.path;
   path = '$exactDirectory' '/$file';//Set the path to where it should go + the current date and time formatting with .m4a at the end
-  //rbox = await Hive.openBox<Recording>('recordings'); //open the box so we can put things inside of it.
-  await Hive.openBox<Recording>('recordings');
   rbox = Hive.box<Recording>('recordings');
   int key = rbox.length;
-  currentRecording = Recording(id: '',title: formattedDateTime,audioFile: path,transcriptFile: '',timeStamp: presently,emotion:[Emotions.happy, Emotions.anger],isTranscribed: false,transcriptionId:'', duration: 0,key: key); //create the recording class
+  currentRecording = Recording(id: '',title: formattedDateTime,audioFile: path,transcriptFile: '',timeStamp: presently,emotion:[],isTranscribed: false,transcriptionId:'', duration: 0,key: key); //create the recording class
   controller.record(path: path); //Actually start the recording
   message = 'Recording'; //change message to show recording
 }
@@ -87,11 +84,10 @@ stopRecording() async{
     currentRecording.duration = secondsCounter;
     currentRecording.id = id;
    // print('id' + '$id');
-    await rbox.add(currentRecording); //Add the recording to the database
+    await rbox.put(currentRecording.key, currentRecording); //Add the recording to the database
   }
   secondsCounter = 0; //reset counter to 0
   message = 'Recording Stopped';
-  Hive.close();
 }
 pauseRecording(){
   controller.pause(); //pause the recording
@@ -106,6 +102,11 @@ class RecordingPage extends StatefulWidget{
   State<RecordingPage> createState() => _RecordingPageState();
 }
 class _RecordingPageState extends State<RecordingPage>{
+    @override
+  initState(){ //Page Initialization code, moved frome changed state.
+    super.initState();
+    presently = DateTime.now();
+  }
   void _changeState() async{
     final hasPermission = await controller.checkPermission(); //get permission to use mic
     if(hasPermission){
