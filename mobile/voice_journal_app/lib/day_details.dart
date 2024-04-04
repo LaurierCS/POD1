@@ -57,13 +57,12 @@ class DayDetailsPage extends StatelessWidget {
                     itemBuilder: (BuildContext context, int index) {
                       final hour = index.toString().padLeft(2, '0');
                       final recordings = (recordingsByHour[index] ?? []);
-                      int length = recordings.length;
 
                       // Create a list of ListTile widgets for each recording
                       final listTiles = recordings.map((recording) {
                         List<Color> emotionColours = [];
-                        if(recording.isTranscribed && length != 0){ //if the recording has a transcription and therefore an emotion associated with it
-                          for (int i = 0; i < length; i++){ //Iterate through the emotions in the recording and add the colour attached to that emotion to the gradient
+                        if(recording.isTranscribed && recording.emotion.isNotEmpty){ //if the recording has a transcription and therefore an emotion associated with it
+                          for (int i = 0; i < recording.emotion.length; i++){ //Iterate through the emotions in the recording and add the colour attached to that emotion to the gradient
                             Emotions emotion = recording.emotion[i];
                             if(emotion == Emotions.happiness){
                               emotionColours.add(AppColors.happiness);
@@ -87,7 +86,7 @@ class DayDetailsPage extends StatelessWidget {
                         }
 
                         return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                           title: Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
