@@ -26,7 +26,7 @@ class _CalendarPageState extends State<CalendarPage> {
       backgroundColor: AppColors.lightGray,
       body: Column(
         children: <Widget>[
-          const SizedBox(height: 20.0),
+          const SizedBox(height: 160.0),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0), //padding on edge
             child: Row(
@@ -73,12 +73,16 @@ class _CalendarPageState extends State<CalendarPage> {
                      Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DayDetailsPage(selectedDate: day),
+                        builder: (context) => 
+                          DayDetailsPage(
+                            selectedDate: day,
+                            updateDays: () => setState(() => {}),
+                          ),
                       ),
                     );
                   },
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.darkGray,
                     ),

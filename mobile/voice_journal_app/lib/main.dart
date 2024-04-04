@@ -52,10 +52,13 @@ enum Page { stats, home, calendar }
 class _MainPageState extends State<MainPage> {
   Page _currPage = Page.home;
   late GlobalKey<HomePageState> _homePageKey;
+  late GlobalKey<StatsPageState> _statsPageKey;
+
   @override
   void initState(){
     super.initState();
     _homePageKey = GlobalKey<HomePageState>();
+    _statsPageKey = GlobalKey<StatsPageState>();
   }
 
   @override
@@ -78,6 +81,8 @@ class _MainPageState extends State<MainPage> {
               setState(() => _currPage = Page.values[value]);
               if (Page.values[value] == Page.home) {
                 _homePageKey.currentState?.updateList(); // Trigger reload of HomePage
+              } else if (Page.values[value] == Page.stats) {
+                _statsPageKey.currentState?.setState(() {}); // Trigger reload of StatsPage
               }
             }
           },
