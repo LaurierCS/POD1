@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:voice_journal_app/schema.dart';
 import 'theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
@@ -31,6 +34,7 @@ final Map<Emotions, String> emotionToEmoji = {
 };
 
 class StatsPageState extends State<StatsPage> {
+  @override
   TimeFrame _selectedTimeFrame = TimeFrame.all; // Default to 'all'
 
   @override
