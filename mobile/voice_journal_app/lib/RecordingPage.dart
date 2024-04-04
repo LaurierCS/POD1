@@ -7,9 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart'; //Used for date formatting
 import 'package:path_provider/path_provider.dart'; //used for getting app directory
 import 'package:fluttertoast/fluttertoast.dart'; //Used for making saved pop up
-import 'package:voice_journal_app/Emotions_enums.dart';
-import 'package:voice_journal_app/home.dart';
-import 'package:voice_journal_app/theme.dart'; 
+import 'theme.dart'; 
 import 'schema.dart';
 // To-do List:
 // - Save file (Done)

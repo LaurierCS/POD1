@@ -56,10 +56,10 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: IndexedStack(
         index: _currPage.index,
-        children: const <Widget>[
-          StatsPage(),
-          HomePage(),
-          Text("Calendar Page"),
+        children: <Widget>[
+          const StatsPage(),
+          HomePage(onNavigateToStats: () => setState(() => _currPage = Page.stats)),
+          const Text("Calendar Page"),
         ],
       ),
       bottomNavigationBar: SizedBox(
