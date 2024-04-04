@@ -7,4 +7,5 @@ class AppColors {
   static const Color mutedTeal = Color(0xFF88BDBC); // Muted Teal
   static const Color pastelYellow = Color(0xFFFFF9AE); // Pastel Yellow
   static const Color lightGray = Color(0xFFE0E0E0); // Light Gray
+  static const Color darkGray = Color.fromARGB(79, 72, 72, 72); // Dark Gray
 }

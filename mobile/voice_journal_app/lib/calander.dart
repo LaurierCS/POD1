@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // library for date calculations, formatting, locales, etc...
 import 'day_details.dart'; // details page
+import 'dart:ui';
+import 'package:voice_journal_app/theme.dart'; 
+import 'schema.dart';
+import 'package:voice_journal_app/Emotions_enums.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:async';
 
 void main() {
   runApp(const CalendarApp());
@@ -34,7 +41,7 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(252, 252, 252, 1),
+      backgroundColor: AppColors.lightGray,
       body: Column(
         children: <Widget>[
           const SizedBox(height: 20.0),
@@ -91,14 +98,14 @@ class _CalendarPageState extends State<CalendarPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color.fromARGB(255, 109, 110, 110).withOpacity(0.5),
+                      color: AppColors.darkGray,
                     ),
                     child: Center(
                       child: Text(
                         '${day.day}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
+                          color: AppColors.lightGray,
                         ),
                       ),
                     ),
