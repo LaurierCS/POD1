@@ -9,20 +9,6 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:async';
 
-class CalendarApp extends StatelessWidget {
-  const CalendarApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Calendar',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const CalendarPage(),
-    );
-  }
-}
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});

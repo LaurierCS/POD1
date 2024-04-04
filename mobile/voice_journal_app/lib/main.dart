@@ -4,6 +4,7 @@ import 'package:voice_journal_app/theme.dart';
 import 'home.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
+import 'calander.dart';
  
 void main()async { 
   await Hive.initFlutter(); //Initialize hive for flutter crucial step
@@ -59,7 +60,7 @@ class _MainPageState extends State<MainPage> {
         children: <Widget>[
           const StatsPage(),
           HomePage(onNavigateToStats: () => setState(() => _currPage = Page.stats)),
-          const Text("Calendar Page"),
+          const CalendarPage(),
         ],
       ),
       bottomNavigationBar: SizedBox(

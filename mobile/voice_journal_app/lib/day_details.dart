@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:voice_journal_app/Playback.dart';
+import 'package:voice_journal_app/RecordingPage.dart';
+import 'package:voice_journal_app/theme.dart';
 import 'schema.dart';
 
 class DayDetailsPage extends StatelessWidget {
@@ -49,20 +52,39 @@ class DayDetailsPage extends StatelessWidget {
                     itemCount: 24,
                     itemBuilder: (BuildContext context, int index) {
                       final hour = index.toString().padLeft(2, '0');
-                      final recordings = recordingsByHour[index] ?? [];
-                      return ListTile( 
-                        title: Text('$hour:00'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: recordings
-                              .map((recording) => Text(
-                                    '${recording.title} (${recording.duration} seconds)',
-                                  ))
-                              .toList(),
-                        ),
-                      );
-                    },
-                  );
+                      final recordings = (recordingsByHour[index] ?? []);
+
+                      // Create a list of ListTile widgets for each recording
+                      final listTiles = recordings.map((recording) {
+                        return ListTile(
+                          title: TextButton(
+                            onPressed: () {
+                              displayRecording(recording);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const PlaybackPage(title: 'playback page')),
+                              );
+                            },
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(AppColors.lightGray),
+                              backgroundColor: MaterialStateProperty.all<Color>(AppColors.mutedTeal),
+                            ),
+                            child: Text(recording.title), // Accessing title from the Recording object
+                          ),
+                        );
+                      }).toList();
+
+    // Return a Column widget with all the ListTile widgets
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Hour: $hour'), // Display hour
+        const SizedBox(height: 15,),
+        ...listTiles, // Add all ListTile widgets
+      ],
+    );
+  },
+);
                 }
               },
             ),
