@@ -43,32 +43,37 @@ class RecordingList extends StatelessWidget {
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
-            child: Text('No recordings created yet.\nTap the + button to create one.'),
+            child: Text(
+              'No recordings created yet.\nTap the + button to create one.',
+              textAlign: TextAlign.center,
+            ),
           );
         } else {
           return ListView.builder(
+            padding: const EdgeInsets.only(top: 16),
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final reversedIndex = snapshot.data!.length - 1 - index;
               final recording = snapshot.data![reversedIndex];
-                int length = recording.emotion.length;
+              int length = recording.emotion.length;
               List<Color> emotionColours = [];
               if(recording.isTranscribed && length != 0){ //if the recording has a transcription and therefore an emotion associated with it
                 for (int i = 0; i < length; i++){ //Iterate through the emotions in the recording and add the colour attached to that emotion to the gradient
                   Emotions emotion = recording.emotion[i];
                   if(emotion == Emotions.happiness){
-                    emotionColours.add(const Color.fromARGB(255, 228, 213, 113));
+                    emotionColours.add(AppColors.happiness);
                   } else if(emotion == Emotions.sadness){
-                    emotionColours.add(Colors.blue[300]!);
+                    emotionColours.add(AppColors.sadness);
                   } else if(emotion == Emotions.anger){
-                    emotionColours.add(Colors.red[300]!);
+                    emotionColours.add(AppColors.anger);
                   } else if(emotion == Emotions.surprise){
-                    emotionColours.add(Colors.orange[300]!);
-                  } else{
-                    emotionColours.add(Colors.brown[300]!);
+                    emotionColours.add(AppColors.surprise);
+                  } else if(emotion == Emotions.fear) {
+                    emotionColours.add(AppColors.fear);
+                  } else if(emotion == Emotions.disgust) {
+                    emotionColours.add(AppColors.disgust);
                   }
                 }
-
               } else{
                 emotionColours.add(AppColors.mutedTeal);
               }
@@ -76,6 +81,7 @@ class RecordingList extends StatelessWidget {
                 emotionColours.add(emotionColours[0]);
               }
               return ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 title: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
