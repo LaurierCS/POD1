@@ -22,6 +22,8 @@ class Recording extends HiveObject{ //creating object class for database
     String transcriptionId;
     @HiveField(8)
     int duration;
+    @HiveField(9)
+    int key;
     Recording({ //Declaring the actual recording class.
       required this.id, 
       required this.title, 
@@ -31,7 +33,8 @@ class Recording extends HiveObject{ //creating object class for database
       required this.emotion, 
       required this.isTranscribed, 
       required this.transcriptionId,
-      required this.duration
+      required this.duration,
+      required this.key
   });
 }
 class RecordingAdapter extends TypeAdapter<Recording>{ //create custom recording adapter, allows our database to interpret Recording class data.
@@ -49,6 +52,7 @@ class RecordingAdapter extends TypeAdapter<Recording>{ //create custom recording
       isTranscribed: reader.readBool(),
       transcriptionId: reader.readString(),
       duration: reader.readInt(),
+      key: reader.readInt(),
 
     );
   }
@@ -63,6 +67,7 @@ class RecordingAdapter extends TypeAdapter<Recording>{ //create custom recording
     writer.writeBool(obj.isTranscribed);
     writer.writeString(obj.transcriptionId);
     writer.writeInt(obj.duration);
+    writer.writeInt(obj.key);
   }
     void _writeEmotionsList(BinaryWriter writer, List<Emotions> emotionsList) {
     writer.writeByte(emotionsList.length); // Write the list length

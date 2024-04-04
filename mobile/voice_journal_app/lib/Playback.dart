@@ -1,25 +1,24 @@
+import 'dart:convert';
 import 'package:audio_waveforms/audio_waveforms.dart'; //for recording and waveforms
+import 'package:hive/hive.dart';
 import 'theme.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'schema.dart';
+import 'Emotions_enums.dart';
 //----Initializing vairables----
 String title ='';
 String audioFile ='';
 bool playing = false;
+String transcript = "Transcript will appear here";
 late PlayerController controller;
 int duration = 0;
+String apiId = "";
+String transcripUrl = "http://35.211.11.4:8000/api/transcripts/";
+var pbox = Hive.box<Recording>('recordings');
 //----Done Initializing variables----
+//hello
 
-displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
-  title = givenRecording.title;
-  audioFile = givenRecording.audioFile;
-  duration = givenRecording.duration;
-  if(givenRecording.isTranscribed){
-    //get transcription file here.
-  }
-  controller = PlayerController();
-  audioPlayerPrep(); //Initialize the audio player
-}
 playbackRecording()async { //play the playback
   await controller.startPlayer(finishMode: FinishMode.loop); //start playback, loop recording when we get to the end of it.
 }
@@ -36,16 +35,58 @@ audioPlayerPrep()async{ //initialize the audio player
   controller.updateFrequency = UpdateFrequency.medium; //controller visual update speed
 }
 class PlaybackPage extends StatefulWidget{
-  const PlaybackPage({super.key, required this.title});
+  const PlaybackPage({super.key, required this.title, required this.callback, required this.recording});
   final String title;
+  final Recording recording;
+  final VoidCallback callback; 
   @override
   State<PlaybackPage> createState() => _PlaybackPageState();
 }
 class _PlaybackPageState extends State<PlaybackPage>{
+  late Recording recording; 
+  displayRecording(Recording givenRecording) async{ //function to get information out of the recording being shown
+    audioFile = givenRecording.audioFile;
+    apiId = givenRecording.id;
+    duration = givenRecording.duration;
+      controller = PlayerController();
+    audioPlayerPrep(); //Initialize the audio player
+    if(!givenRecording.isTranscribed){
+      //get transcription file here.
+      String fullUrl = '$transcripUrl$apiId';
+      final transcriptUri = Uri.parse(fullUrl);
+      final transcriptResponce = await http.get(transcriptUri);
+      final responseData = json.decode(transcriptResponce.body);
+      transcript = responseData['transcript'];
+      if(transcript != ""){
+        String fetchedTitle = responseData['entry_title'];
+        List<String> emotionsString = responseData['emotions'].split(',');
+        List<Emotions> emotionList = emotionsString
+        .where((str) => str.isNotEmpty) // Filter out empty strings
+        .map((str) => Emotions.values[int.parse(str)])
+        .toList();
+        givenRecording.emotion = emotionList;
+        print(emotionList.toString());
+        givenRecording.title = fetchedTitle;
+        givenRecording.isTranscribed = true;
+        givenRecording.transcriptFile = transcript;
+        
+        givenRecording.title = fetchedTitle;
+        pbox.put(givenRecording.key, givenRecording);
+        setState(() {
+          title = fetchedTitle;
+        });
+      }
+    } else{
+      transcript = givenRecording.transcriptFile;
+    }
+  }
   @override
   initState(){ //Page Initialization code, moved frome changed state.
     super.initState();
-    controller.onCompletion.listen((event){ pauseRecording(); setState((){playing = !playing;});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
+    recording = widget.recording;
+    title = recording.title;
+    displayRecording(recording);
+    controller.onCompletion.listen((event){ pauseRecording(); setState((){});}); //add a listener so that when the file ends it pauses. This allows the user to loop their recording as many times as they want, but they just have to hit the play button to do so
   }
   changeState(){
     if(playing){ //If the recording is playing
@@ -67,6 +108,15 @@ class _PlaybackPageState extends State<PlaybackPage>{
             AppBar(
               backgroundColor: AppColors.lightGray,
               title: Text(title),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    pbox.delete(recording.key);
+                    Navigator.of(context).pop();
+                  },
+                )
+              ]
             ), //Creating an app bar to have the back button on the top of the page
             const SizedBox(height: 40),
             Container(
@@ -97,7 +147,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
               ),
             ),  
             const SizedBox(height: 30),
-            Container( //Will be used to display how far in the recording we've played so far.
+            Container(
               alignment: Alignment.center,
               width: 370,
               height: 350,
@@ -106,13 +156,21 @@ class _PlaybackPageState extends State<PlaybackPage>{
                 color: AppColors.primaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
-                child: 
-                const Column(
+              child: SingleChildScrollView(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children:[
-                    Text('Transcript will go here'),
-                  ]
+                  children: [
+                    // Adding some padding to the top and bottom of the text for better appearance
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        transcript,
+                        style: const TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
             ),
             PopScope(
               canPop:true,
@@ -121,6 +179,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
                   controller.stopAllPlayers();
                   controller.dispose();
                   playing = false;
+                  widget.callback();
                 }
               }, child: const Text(' '),
             )
@@ -129,7 +188,7 @@ class _PlaybackPageState extends State<PlaybackPage>{
       ),
       floatingActionButton: Container( //Recording button
         alignment: Alignment.bottomCenter,
-        margin: const EdgeInsets.only(bottom: 120),
+        margin: const EdgeInsets.only(bottom: 30),
         height: 70,
         width:70,
         // alignment: Alignment.center,

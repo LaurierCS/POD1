@@ -8,9 +8,12 @@ import 'RecordingPage.dart';
 import 'package:hive/hive.dart'; //Importing the local database
 import 'package:hive_flutter/hive_flutter.dart';
 import 'schema.dart';
+import 'Emotions_enums.dart';
 
 //init variables
+MaterialStateProperty <Color> emotionColor = MaterialStateProperty.all<Color>(AppColors.mutedTeal);
 //end of variables
+
 class HomePage extends StatefulWidget {
   Function onNavigateToStats;
   HomePage({super.key, required this.onNavigateToStats});
@@ -19,13 +22,12 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => HomePageState();
 }
 class RecordingList extends StatelessWidget {
-  const RecordingList({super.key});
-
+  const RecordingList({super.key, required this.updateList});
+  final Function updateList;
   Future<List<Recording>> _fetchRecordings() async {
-    final box = await Hive.openBox<Recording>('recordings');
+    final box = Hive.box<Recording>('recordings');
     return box.values.toList();
   }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Recording>>(
@@ -41,28 +43,67 @@ class RecordingList extends StatelessWidget {
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
-            child: Text('No recordings created yet.\nTap the + button to create one.'),
+            child: Text(
+              'No recordings created yet.\nTap the + button to create one.',
+              textAlign: TextAlign.center,
+            ),
           );
         } else {
           return ListView.builder(
+            padding: const EdgeInsets.only(top: 16),
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final reversedIndex = snapshot.data!.length - 1 - index;
               final recording = snapshot.data![reversedIndex];
+              int length = recording.emotion.length;
+              List<Color> emotionColours = [];
+              if(recording.isTranscribed && length != 0){ //if the recording has a transcription and therefore an emotion associated with it
+                for (int i = 0; i < length; i++){ //Iterate through the emotions in the recording and add the colour attached to that emotion to the gradient
+                  Emotions emotion = recording.emotion[i];
+                  if(emotion == Emotions.happiness){
+                    emotionColours.add(AppColors.happiness);
+                  } else if(emotion == Emotions.sadness){
+                    emotionColours.add(AppColors.sadness);
+                  } else if(emotion == Emotions.anger){
+                    emotionColours.add(AppColors.anger);
+                  } else if(emotion == Emotions.surprise){
+                    emotionColours.add(AppColors.surprise);
+                  } else if(emotion == Emotions.fear) {
+                    emotionColours.add(AppColors.fear);
+                  } else if(emotion == Emotions.disgust) {
+                    emotionColours.add(AppColors.disgust);
+                  }
+                }
+              } else{
+                emotionColours.add(AppColors.mutedTeal);
+              }
+              if(emotionColours.length == 1){ //if there is only one colour in the gradient list this will return an error. So lets just duplicate it.
+                emotionColours.add(emotionColours[0]);
+              }
               return ListTile(
-                title: TextButton(
-                  onPressed: () {
-                    displayRecording(recording);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const PlaybackPage(title: 'playback page')),
-                    );
-                  },
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(AppColors.lightGray),
-                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.mutedTeal),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                title: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: emotionColours,
+                    ),
+                    borderRadius: BorderRadius.circular(50),
                   ),
-                  child: Text(recording.title),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PlaybackPage(title: 'playback page', callback: () => updateList(), recording: recording)),
+                      );
+                    },
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                    ),
+                    child: Text(recording.title),
+                  ),
                 ),
               );
             },
@@ -183,6 +224,9 @@ class HomePageState extends State<HomePage>{
   
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      
+    });
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0), // Horizontal padding for white space
@@ -211,15 +255,15 @@ class HomePageState extends State<HomePage>{
                 margin: const EdgeInsets.only(bottom: 20, top: 20),
                 child: EmotionChart(onNavigateToStats: widget.onNavigateToStats),
               ),
-              Expanded( // 
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor, // Background color of the rectangle
-                    borderRadius: BorderRadius.circular(10), // Rounded corners
+                Expanded( // 
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor, // Background color of the rectangle
+                      borderRadius: BorderRadius.circular(10), // Rounded corners
+                    ),
+                    child: RecordingList(updateList: updateList)
                   ),
-                  child: const RecordingList()
                 ),
-              ),
             ],
           ),
         ),
