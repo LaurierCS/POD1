@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart'; //Importing the local database
-import 'package:voice_journal_app/Emotions_enums.dart';
+// import 'package:voice_journal_app/lib/Emotions_enums.dart';
+import 'Emotions_enums.dart';
  //----Start Of Database Setup----
 @HiveType(typeId:0)
 class Recording extends HiveObject{ //creating object class for database

@@ -62,9 +62,9 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: IndexedStack(
         index: _currPage.index,
-        children:<Widget>[
-          StatsPage(),
-          HomePage(key: _homePageKey),
+        children: <Widget>[
+          const StatsPage(),
+          HomePage(onNavigateToStats: () => setState(() => _currPage = Page.stats)),
           const Text("Calendar Page"),
         ],
       ),
