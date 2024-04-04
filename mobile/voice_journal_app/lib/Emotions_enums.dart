@@ -1,4 +1,3 @@
-// ignore: file_names
 enum Emotions {
  	happiness, // id = 0
   sadness, // id = 1
