@@ -221,6 +221,7 @@ class HomePageState extends State<HomePage>{
       
     });
   }
+  
   @override
   Widget build(BuildContext context) {
     setState(() {
@@ -269,11 +270,11 @@ class HomePageState extends State<HomePage>{
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => RecordingPage(title: 'recording page', callback: updateList)),
-              );
-          },
+          Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RecordingPage(title: 'recording page', callback: updateList)),
+            );
+        },
         backgroundColor: AppColors.accentColor,
         child: const Icon(Icons.add_circle_rounded),
       ),

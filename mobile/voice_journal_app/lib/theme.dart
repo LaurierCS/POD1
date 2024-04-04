@@ -7,6 +7,7 @@ class AppColors {
   static const Color mutedTeal = Color(0xFF88BDBC); // Muted Teal
   static const Color pastelYellow = Color(0xFFFFF9AE); // Pastel Yellow
   static const Color lightGray = Color(0xFFE0E0E0); // Light Gray
+  static const Color darkGray = Color.fromARGB(79, 72, 72, 72); // Dark Gray
   static const happiness = Color.fromARGB(255, 228, 213, 113);
   static const sadness = Color.fromRGBO(100, 181, 246, 1);
   static const fear = Color.fromRGBO(186, 104, 200, 1);
