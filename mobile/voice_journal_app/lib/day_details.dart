@@ -73,8 +73,7 @@ class DayDetailsPage extends StatelessWidget {
   }
 
   Future<List<Recording>> _getRecordings() async {
-    await Hive.initFlutter();
-    final box = await Hive.openBox<Recording>('recordings');
+    final box = Hive.box<Recording>('recordings');
     final allRecordings = box.values.toList();
     final recordingsForSelectedDate = allRecordings.where((recording) {
       final recordingDate = recording.timeStamp;

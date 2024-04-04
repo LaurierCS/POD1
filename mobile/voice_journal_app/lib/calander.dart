@@ -9,10 +9,6 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:async';
 
-void main() {
-  runApp(const CalendarApp());
-}
-
 class CalendarApp extends StatelessWidget {
   const CalendarApp({super.key});
 
