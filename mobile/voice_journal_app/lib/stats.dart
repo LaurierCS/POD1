@@ -197,43 +197,38 @@ Expanded(
 }
 Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
   await Future.delayed(const Duration(seconds: 2)); // Simulate network/database delay
-  getEmotionsFromDatabase();
-  List<int> values = countEmotions(allList);
   // Example mock data for different spans
   List<EmotionCount> allData = [
-    EmotionCount('Happiness', values[0]),
-    EmotionCount('Sadness', values[1]),
-    EmotionCount('Fear', values[2]),
-    EmotionCount('Surprise', values[3]),
-    EmotionCount('Anger', values[4]),
-    EmotionCount('Disgust', values[5]),
+    EmotionCount('Happiness', 100),
+    EmotionCount('Sadness', 50),
+    EmotionCount('Fear', 20),
+    EmotionCount('Surprise', 40),
+    EmotionCount('Anger', 10),
+    EmotionCount('Disgust', 30),
   ];
-  values = countEmotions(yearList);
   List<EmotionCount> yearData = [ 
-    EmotionCount('Happiness', values[0]),
-    EmotionCount('Sadness', values[1]),
-    EmotionCount('Fear', values[2]),
-    EmotionCount('Surprise', values[3]),
-    EmotionCount('Anger', values[4]),
-    EmotionCount('Disgust', values[5]),
+    EmotionCount('Happiness', 100),
+    EmotionCount('Sadness', 45),
+    EmotionCount('Fear', 20),
+    EmotionCount('Surprise', 20),
+    EmotionCount('Anger', 40),
+    EmotionCount('Disgust', 50),
   ];
-  values = countEmotions(monthList);
   List<EmotionCount> monthData = [
-    EmotionCount('Happiness', values[0]),
-    EmotionCount('Sadness', values[1]),
-    EmotionCount('Fear', values[2]),
-    EmotionCount('Surprise', values[3]),
-    EmotionCount('Anger', values[4]),
-    EmotionCount('Disgust', values[5]),
+    EmotionCount('Happiness', 10),
+    EmotionCount('Sadness', 5),
+    EmotionCount('Fear', 1),
+    EmotionCount('Surprise', 30),
+    EmotionCount('Anger', 40),
+    EmotionCount('Disgust', 50),
   ];
-  values = countEmotions(weekList);
   List<EmotionCount> weekData = [
-    EmotionCount('Happiness', values[0]),
-    EmotionCount('Sadness', values[1]),
-    EmotionCount('Fear', values[2]),
-    EmotionCount('Surprise', values[3]),
-    EmotionCount('Anger', values[4]),
-    EmotionCount('Disgust', values[5]),
+    EmotionCount('Happiness',10),
+    EmotionCount('Sadness', 5),
+    EmotionCount('Fear', 20),
+    EmotionCount('Surprise', 1),
+    EmotionCount('Anger', 40),
+    EmotionCount('Disgust', 50),
   ];
 
   // Switch statement to return data based on selected time span
@@ -268,92 +263,5 @@ Future<List<EmotionCount>> fetchEmotionCountsFromDatabase() async {
         return Colors.grey; // A default color for unknown emotions
   }
 }
-getEmotionsFromDatabase()async{
-  weekList.clear(); //Clear the lists. I counldn't think of an easy way to stop repeats. This is crazy inefficient but I'm tight on time at the moment so unfortunately I'm just going with this.... Sorry. I should have probobly added the recording to the list so I could check the name and see if it's already in it. But yeah.
-  monthList.clear();
-  yearList.clear();
-  allList.clear();
-
-  //This is a method which goes into the database and fetches all of the emotions in every recording in the Database. It then checks the timestamp contained in every recording and compares it with week, month, and year. Based on that it adds it to a list to be read by the stats page.
-  final rbox = Hive.box<Recording>('recordings');
-  int iterator = rbox.length;
-  if(iterator > 0){
-    for(int i = 0; i < iterator; i++){
-      var fetchedRecording = rbox.getAt(i);
-      if(!fetchedRecording!.isTranscribed){ //if not transcribed.
-        String transcripUrl = "http://35.211.11.4:8000/api/transcripts/"; //get the http url
-        String apiId = fetchedRecording.id; //get the id from the recording
-        String fullUrl = '$transcripUrl$apiId'; //add the strings together to get the whole url
-        final transcriptUri = Uri.parse(fullUrl);
-        final transcriptResponce = await http.get(transcriptUri);
-        final responseData = json.decode(transcriptResponce.body);
-        String transcript = responseData['transcript'];
-        if(transcript != ""){
-          String fetchedTitle = responseData['entry_title'];
-          List<String> emotionsString = responseData['emotions'].split(',');
-          List<Emotions> emotionList = emotionsString
-          .where((str) => str.isNotEmpty) // Filter out empty strings
-          .map((str) => Emotions.values[int.parse(str)])
-          .toList();
-          fetchedRecording.emotion = emotionList;
-          print(emotionList.toString());
-          fetchedRecording.title = fetchedTitle;
-          fetchedRecording.isTranscribed = true;
-          fetchedRecording.transcriptFile = transcript;
-          fetchedRecording.title = fetchedTitle;
-          rbox.put(fetchedRecording.key, fetchedRecording);
-        }
-
-
-
-      }
-      if(fetchedRecording != null){
-        DateTime date = fetchedRecording.timeStamp;
-        bool isWeek = checkValid(date, 7); //check if the recording is less than a week old
-        if(isWeek){ //if the checked recording is less than a week old then it is therefore also less than a week, month and year old so add it to everything.
-          allList.addAll(fetchedRecording.emotion);
-          yearList.addAll(fetchedRecording.emotion); 
-          weekList.addAll(fetchedRecording.emotion); 
-          monthList.addAll(fetchedRecording.emotion);
-        } else{ //more than a week old
-          bool isMonth = checkValid(date, 31);
-          if(isMonth){
-            yearList.addAll(fetchedRecording.emotion);
-            monthList.addAll(fetchedRecording.emotion);
-            allList.addAll(fetchedRecording.emotion);
-          } else{ //more than a month old
-            bool isYear = checkValid(date, 365);
-            if(isYear){
-              allList.addAll(fetchedRecording.emotion);
-              yearList.addAll(fetchedRecording.emotion);
-            } else{ //more than a year old
-              allList.addAll(fetchedRecording.emotion); //okay so just add it to the all list.
-            }
-          }
-        }
-      }
-    }
-  }
 }
-bool checkValid(DateTime date, int timePeriod){ //This is a method which checks if a recording is within a given time period. Plugging in 7 for time period will make it check a wee, 365 a year, etc etc.
-  DateTime weekCheck = DateTime.now().subtract(Duration(days: timePeriod));
-  DateTime now = DateTime.now();
-  return date.isAfter(weekCheck) && date.isBefore(now);
-}
-}
-List<int> countEmotions(List list){ // this is a method used to get the count of every emotion in a give all, month, or year list.
-  List<int> count = [];
-  int hapCount = list.where((item) => item == Emotions.happiness).length;
-  int sadCount = list.where((item) => item == Emotions.sadness).length;
-  int fearCount = list.where((item) => item == Emotions.fear).length;
-  int surpriseCount = list.where((item) => item == Emotions.surprise).length;
-  int angreCount = list.where((item) => item == Emotions.anger).length;
-  int disCount = list.where((item) => item == Emotions.disgust).length;
-  count.add(hapCount);
-  count.add(sadCount);
-  count.add(fearCount);
-  count.add(surpriseCount);
-  count.add(angreCount);
-  count.add(disCount);
-  return count;
-}
+
