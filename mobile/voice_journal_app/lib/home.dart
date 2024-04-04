@@ -248,15 +248,6 @@ class HomePageState extends State<HomePage>{
                 margin: const EdgeInsets.only(bottom: 20, top: 20),
                 child: EmotionChart(onNavigateToStats: widget.onNavigateToStats),
               ),
-              Expanded( // 
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryColor, // Background color
-                    borderRadius: BorderRadius.circular(10), // Rounds corners
-                  ), // Placeholder text
-                  margin: const EdgeInsets.only(bottom: 20, top: 20),
-                  child: const Center(child: Text('Emotion Stats')), // Space between the rectangles and additional top padding
-                ),
                 Expanded( // 
                   child: Container(
                     decoration: BoxDecoration(
@@ -265,9 +256,7 @@ class HomePageState extends State<HomePage>{
                     ),
                     child: RecordingList(updateList: updateList)
                   ),
-                  child: const RecordingList()
                 ),
-              ),
             ],
           ),
         ),
