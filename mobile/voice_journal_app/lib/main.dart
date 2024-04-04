@@ -11,6 +11,7 @@ void main()async {
   //await Hive.openBox<Recording>('recordings');
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
