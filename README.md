@@ -12,7 +12,7 @@
 </div>
 
 ## Overview :sparkles:
-- 
+- https://docs.google.com/presentation/d/1rDxEwDhC16h3SyqXu0pTTeUneiPniajZnS6LJzaEl1E/edit?usp=sharing
 
 ## Development :computer:
 
